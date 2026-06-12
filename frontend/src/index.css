@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Swiss 721 Black Extended";
+  src: url("/fonts/Swiss721-BlackExtended.woff2") format("woff2");
+}
+
+@theme {
+  --color-floesky: #2c88c4;
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  --font-archivo: "Archivo Black", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+}
+
+@keyframes neonPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(56, 189, 248, 0.4),
+      0 0 20px rgba(56, 189, 248, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(56, 189, 248, 0.9),
+      0 0 45px rgba(56, 189, 248, 0.4);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
