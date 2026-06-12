@@ -11,6 +11,7 @@
   --color-floesky: #2c88c4;
   --color-black: #000000;
   --color-white: #ffffff;
+  --color-borderColor: #262626;
 
   --font-archivo: "Archivo Black", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
@@ -39,4 +40,25 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+html::-webkit-scrollbar {
+  width: 4px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-floesky);
+  border-radius: 10px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: white;
+}
+
+body {
+  overflow-y: auto;
 }

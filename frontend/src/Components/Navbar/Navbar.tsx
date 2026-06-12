@@ -5,7 +5,7 @@ import ThemeToggle from "./ThemeToggle"
 const Navbar = () => {
   return (
     <>
-      <nav className="bg-backgroundColor flex justify-around px-4 items-center border-b border-b-gray-1000 w-full py-1 fixed h-22 z-10">
+      <nav className="bg-black/90 transition-all duration-500 backdrop-blur-xs flex justify-around px-4 items-center border-b border-b-borderColor w-full py-1 fixed h-22 z-50">
         <img src={logo} alt="logo" className="w-26 h-26 cursor-pointer" />
 
         <div className="flex gap-10 items-center">
