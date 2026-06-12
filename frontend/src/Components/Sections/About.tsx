@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
-import React from "react";
+import floe from "../../assets/floeimage.jpg";
 
 const About = () => {
   return (
     <div className="flex justify-center items-center gap-20">
-      <div className="flex border-4 rounded-xl border-floesky w-xl h-128"></div>
+      <div className="flex border-4 rounded-xl border-floesky w-xl h-128 overflow-hidden z-10">
+  <img src={floe} alt="logo" className="w-full h-full" />
+</div>
 
       <motion.div
         initial={{ opacity: 0, x: 40 }}

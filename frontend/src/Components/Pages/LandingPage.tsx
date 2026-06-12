@@ -1,10 +1,11 @@
 import About from "../Sections/About";
 import Hero from "../Sections/Hero";
+import Showcase from "../Sections/Showcase";
 import Values from "../Sections/Values";
 
 const LandingPage = () => {
   return (
-    <main className="bg-black h-screen">
+    <main className="bg-black min-h-screen">
       <section className="h-screen flex items-center pt-24">
         <Hero />
       </section>
@@ -18,7 +19,7 @@ const LandingPage = () => {
       </section>
 
       <section className="h-screen flex items-center justify-center border-y border-borderColor">
-        {/* <CTA /> */}
+        <Showcase />
       </section>
     </main>
   );
