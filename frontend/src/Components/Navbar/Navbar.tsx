@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `text-md font-montserrat font-bold cursor-pointer transition duration-300 ${
-      isActive ? "text-floesky" : "text-white/60 hover:text-white"
+      isActive ? "text-floesky" : "text-descText hover:text-white"
     }`;
 
   const handleLogoClick = () => {
@@ -23,7 +23,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-black/90 transition-all duration-500 backdrop-blur-xs flex justify-around px-4 items-center border-b border-b-borderColor w-full py-1 fixed h-22 z-50">
+    <nav className="bg-nav backdrop-blur-xs flex justify-around px-4 items-center border-b border-b-borderColor w-full py-1 fixed h-22 z-50">
       <img
         src={logo}
         alt="logo"
@@ -31,7 +31,7 @@ const Navbar = () => {
         className="w-26 h-26 cursor-pointer"
       />
 
-      <div className="flex gap-10 items-center">
+      <div className="flex gap-10 items-center transition-all duration-300">
         <NavLink to="/products" className={navClass}>
           PRODUCTS
         </NavLink>

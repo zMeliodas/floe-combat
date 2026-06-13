@@ -49,7 +49,7 @@ const Hero = () => {
             duration: 0.6,
             delay: 0.85,
           }}
-          className="text-white/60 font-montserrat text-lg font-light tracking-widest mb-8 max-w-lg"
+          className="text-descText font-montserrat text-lg font-light tracking-widest mb-8 max-w-lg"
         >
           By Practitioners, For Practitioners. Custom rashguards crafted with
           purpose and built for the mat.
@@ -68,10 +68,10 @@ const Hero = () => {
             START COMMISSION →
           </button>
           <div className="flex items-center gap-2 group">
-            <span className="content-center font-montserrat text-white/70 text-sm h-12 tracking-widest group-hover:text-white transition cursor-pointer">
+            <span className="content-center font-montserrat text-descText text-sm h-12 tracking-widest group-hover:text-white transition cursor-pointer">
               VIEW PROJECTS
             </span>
-            <span className="inline-block w-6 h-px bg-white/60 group-hover:bg-white transition"></span>
+            <span className="inline-block w-6 h-px bg-descText group-hover:bg-white transition"></span>
           </div>
         </motion.div>
       </div>

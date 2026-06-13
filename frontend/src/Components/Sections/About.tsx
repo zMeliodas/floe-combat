@@ -5,8 +5,8 @@ const About = () => {
   return (
     <div className="flex justify-center items-center gap-20">
       <div className="flex border-4 rounded-xl border-floesky w-xl h-128 overflow-hidden z-10">
-  <img src={floe} alt="logo" className="w-full h-full" />
-</div>
+        <img src={floe} alt="logo" className="w-full h-full" />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, x: 40 }}
@@ -31,14 +31,14 @@ const About = () => {
 
         <div className="w-12 h-px bg-floesky"></div>
 
-        <p className="text-white/60 font-montserrat text-base">
+        <p className="text-descText font-montserrat text-base">
           We created Floe Combat with the dialogue of{" "}
           <span className="text-floesky font-montserrat">
             "May dinesign ako para sayo, for your journey in BJJ."
           </span>
         </p>
 
-        <p className="text-white/60 font-montserrat text-base">
+        <p className="text-descText font-montserrat text-base">
           Then everything clicked — we wanted to share what we have, even the
           experience of the thought itself. We showed our work with our closest
           people, and they said they wanted to try the design. And that's how{" "}
@@ -48,7 +48,7 @@ const About = () => {
           was born.
         </p>
 
-        <p className="text-white/60 font-montserrat text-base">
+        <p className="text-descText font-montserrat text-base">
           We actually didn't expect that we are going to be part of multiple
           communities. We built this as a support for the sport itself and to
           expand with the foundation of being thoughtful.

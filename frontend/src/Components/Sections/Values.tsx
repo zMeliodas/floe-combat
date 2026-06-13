@@ -30,7 +30,7 @@ const Values = () => {
           transition={{
             duration: 0.6,
           }}
-          className="text-white/40 font-montserrat font-bold text-sm tracking-widest text-right"
+          className="text-descText2 font-montserrat font-bold text-sm tracking-widest text-right"
         >
           THE PILLARS THAT DEFINE EVERY
           <br />
@@ -64,7 +64,7 @@ const Values = () => {
             transition={{
               duration: 0.6,
             }}
-            className="font-montserrat text-white/60 text-sm"
+            className="font-montserrat text-descText text-sm"
           >
             We communicate honestly and stay true to our identity in every
             visual and message.
@@ -96,7 +96,7 @@ const Values = () => {
             transition={{
               duration: 0.6,
             }}
-            className="font-montserrat text-white/60 text-sm"
+            className="font-montserrat text-descText text-sm"
           >
             Of our belief, our work and how we operate Floe Combat, with passion
             and creativity.
@@ -128,7 +128,7 @@ const Values = () => {
             transition={{
               duration: 0.6,
             }}
-            className="font-montserrat text-white/60 text-sm"
+            className="font-montserrat text-descText text-sm"
           >
             Everything is kept clear, focused, and easy to understand. Our brand
             is transparent.

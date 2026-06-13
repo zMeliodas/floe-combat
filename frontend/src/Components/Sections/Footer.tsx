@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <footer className="relative overflow-hidden bg-black text-white px-86 pt-16 pb-16">
@@ -23,24 +25,24 @@ const Footer = () => {
           </div>
           <ul className="flex flex-col gap-2.5 text-sm text-white/40 font-montserrat">
             <li>
-              <a href="#" className="hover:text-white transition-colors">
-                Projects
-              </a>
+              <Link to="/products" className="hover:text-white transition-colors">
+                Products
+              </Link>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
-                Stories
-              </a>
+              <Link to="/highlights" className="hover:text-white transition-colors">
+                Highlights
+              </Link>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <Link to="/order" className="hover:text-white transition-colors">
+                Order
+              </Link>
+            </li>
+            <li>
+              <Link to="/reviews" className="hover:text-white transition-colors">
                 Reviews
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white transition-colors">
-                Commission
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

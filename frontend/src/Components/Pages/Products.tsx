@@ -102,7 +102,7 @@ const Products = () => {
                   <h3 className="font-archivo text-2xl font-bold tracking-tight">
                     {project.title}
                   </h3>
-                  <p className="text-white/60 font-montserrat text-sm leading-relaxed line-clamp-2">
+                  <p className="text-descText font-montserrat text-sm leading-relaxed line-clamp-2">
                     {project.description}
                   </p>
                 </div>
@@ -111,10 +111,10 @@ const Products = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center flex-1 gap-2">
-            <span className="text-white/10 font-archivo text-7xl font-bold">
+            <span className="text-semitrans font-archivo text-7xl font-bold">
               0
             </span>
-            <p className="text-white/40 font-montserrat text-sm font-bold tracking-widest">
+            <p className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
               NO PROJECTS YET
             </p>
           </div>
@@ -159,7 +159,7 @@ const Products = () => {
                   <h3 className="font-archivo text-3xl font-bold tracking-tight">
                     {selected.title}
                   </h3>
-                  <p className="text-white/60 font-montserrat text-sm leading-relaxed">
+                  <p className="text-descText font-montserrat text-sm leading-relaxed">
                     {selected.description}
                   </p>
                 </div>

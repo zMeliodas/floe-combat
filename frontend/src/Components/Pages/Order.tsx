@@ -56,7 +56,7 @@ const Order = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-white/60 font-montserrat text-md font-light max-w-lg"
+            className="text-descText font-montserrat text-md font-light max-w-lg"
           >
             No checkout, no hassle. Every piece is custom made — just reach out
             and we'll guide you through it.
@@ -75,10 +75,10 @@ const Order = () => {
                 className="flex flex-col gap-4 p-8 border-r border-borderColor last:border-r-0 lg:nth-[4n]:border-r-0"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-full bg-floesky text-white flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-floesky text-truewhite flex items-center justify-center">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-white/10 font-archivo text-5xl font-bold leading-none">
+                  <span className="text-semitrans font-archivo text-5xl font-bold leading-none">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
@@ -86,7 +86,7 @@ const Order = () => {
                 <h3 className="font-archivo text-xl tracking-tight">
                   {step.title}
                 </h3>
-                <p className="text-white/60 font-montserrat text-sm leading-relaxed">
+                <p className="text-descText font-montserrat text-sm leading-relaxed">
                   {step.desc}
                 </p>
               </motion.div>
@@ -100,7 +100,7 @@ const Order = () => {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="flex flex-col items-center gap-4 max-w-7xl w-full border border-t-0 border-borderColor p-12 text-center"
         >
-          <p className="text-white/60 font-montserrat text-sm tracking-widest">
+          <p className="text-descText font-montserrat text-sm tracking-widest">
             READY TO START YOUR COMMISSION?
           </p>
           <a

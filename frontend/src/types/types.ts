@@ -20,3 +20,5 @@ export interface Project {
   description: string;
   image: string;
 }
+
+export type Theme = "light" | "dark";

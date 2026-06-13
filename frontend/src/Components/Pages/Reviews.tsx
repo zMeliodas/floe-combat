@@ -133,7 +133,7 @@ const Reviews = () => {
             <span className="font-archivo text-4xl font-bold">
               {average.toFixed(1)}
             </span>
-            <span className="text-white/40 font-montserrat text-xs font-bold tracking-widest">
+            <span className="text-descText2 font-montserrat text-xs font-bold tracking-widest">
               {reviews.length} REVIEWS
             </span>
           </motion.div>
