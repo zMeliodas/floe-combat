@@ -59,6 +59,23 @@ html::-webkit-scrollbar-thumb:hover {
   background: white;
 }
 
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-floesky);
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: white;
+}
+
 body {
   overflow-y: auto;
 }

@@ -1,31 +1,56 @@
-import { Link } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/floelogo.svg";
-import ThemeToggle from "./ThemeToggle"
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `text-md font-montserrat font-bold cursor-pointer transition duration-300 ${
+      isActive ? "text-floesky" : "text-white/60 hover:text-white"
+    }`;
+
+  const handleLogoClick = () => {
+    if (location.pathname === "/") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
-    <>
-      <nav className="bg-black/90 transition-all duration-500 backdrop-blur-xs flex justify-around px-4 items-center border-b border-b-borderColor w-full py-1 fixed h-22 z-50">
-        <img src={logo} alt="logo" className="w-26 h-26 cursor-pointer" />
+    <nav className="bg-black/90 transition-all duration-500 backdrop-blur-xs flex justify-around px-4 items-center border-b border-b-borderColor w-full py-1 fixed h-22 z-50">
+      <img
+        src={logo}
+        alt="logo"
+        onClick={handleLogoClick}
+        className="w-26 h-26 cursor-pointer"
+      />
 
-        <div className="flex gap-10 items-center">
-          <p className="text-md font-montserrat font-bold text-white/60 hover:text-white cursor-pointer transition duration-300">
-            PROJECTS
-          </p>
-          <p className="text-md font-montserrat font-bold text-white/60 hover:text-white cursor-pointer transition duration-300">
-            STORIES
-          </p>
-          <p className="text-md font-montserrat font-bold text-white/60 hover:text-white cursor-pointer transition duration-300">
-            REVIEWS
-          </p>
-          <p className="text-md font-montserrat font-bold text-white/60 hover:text-white cursor-pointer transition duration-300">
-            ABOUT
-          </p>
-        </div>
+      <div className="flex gap-10 items-center">
+        <NavLink to="/products" className={navClass}>
+          PRODUCTS
+        </NavLink>
 
-        <ThemeToggle />
-      </nav>
-    </>
+        <NavLink to="/highlights" className={navClass}>
+          HIGHLIGHTS
+        </NavLink>
+
+        <NavLink to="/order" className={navClass}>
+          HOW TO ORDER
+        </NavLink>
+
+        <NavLink to="/reviews" className={navClass}>
+          REVIEWS
+        </NavLink>
+      </div>
+
+      <ThemeToggle />
+    </nav>
   );
 };
 

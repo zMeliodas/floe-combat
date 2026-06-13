@@ -12,7 +12,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-floesky font-archivo text-sm font-light tracking-widest"
+          className="text-floesky font-montserrat text-sm font-bold tracking-widest"
         >
           WHERE ART MEETS THE MAT.
         </motion.p>
@@ -62,7 +62,7 @@ const Hero = () => {
             duration: 0.6,
             delay: 1,
           }}
-          className="flex items-center gap-4 opacity-0"
+          className="flex items-center gap-4"
         >
           <button className="bg-floesky font-montserrat font-bold text-white text-sm w-66 h-13 tracking-widest animate-[neonPulse_2.5s_ease-in-out_infinite] transition-all duration-300 hover:bg-white hover:text-black cursor-pointer">
             START COMMISSION →
