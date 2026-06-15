@@ -1,17 +1,8 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { FaStar, FaRegStar } from "react-icons/fa";
-
-interface Review {
-  id: number;
-  featured?: boolean;
-  rating: number;
-  text: string;
-  design: string;
-  author: string;
-  role: string;
-  initial: string;
-}
+import { motion, AnimatePresence } from "framer-motion";
+import { FaStar, FaRegStar, FaTimes } from "react-icons/fa";
+import type { Review } from "../../types/types";
+import StarRating from "../common/StarRating";
 
 const reviews: Review[] = [
   {
@@ -29,7 +20,7 @@ const reviews: Review[] = [
     featured: true,
     rating: 5,
     text: "Wore this at a regional tournament. Multiple opponents noticed the design mid-match. Premium quality, premium feel. Floe Combat is the real deal.",
-    design: "THE VORTEX — COMPETITION",
+    design: "THE VORTEX",
     author: "Mark Santos",
     role: "BJJ Blue Belt / MMA Fighter",
     initial: "M",
@@ -47,152 +38,147 @@ const reviews: Review[] = [
     id: 4,
     rating: 4,
     text: "Great design and very comfortable. The custom commission process was smooth — they really listened to what I wanted. Would definitely order again.",
-    design: "CUSTOM DESIGN",
+    design: "NIGHT LOTUS",
     author: "Carlo Manalo",
     role: "No-Gi Practitioner",
     initial: "C",
-  },
-  {
-    id: 5,
-    rating: 4,
-    text: "Great design and very comfortable. The custom commission process was smooth — they really listened to what I wanted. Would definitely order again.",
-    design: "CUSTOM DESIGN",
-    author: "Carlo Manalo",
-    role: "No-Gi Practitioner",
-    initial: "C",
-  },
-  {
-    id: 6,
-    rating: 1,
-    text: "Bro, this is legit. I've been in BJJ for 4 years and worn a lot of brands — Floe Combat hits different. The design is unique, the quality is there, and you can feel the passion behind it.",
-    design: "THE VORTEX",
-    author: "Jayson Reyes",
-    role: "BJJ Blue Belt",
-    initial: "J",
   },
 ];
 
 const filters = ["ALL", "5", "4", "3", "2", "1"];
 
-const StarRating = ({ rating }: { rating: number }) => (
-  <div className="flex gap-1">
-    {Array.from({ length: 5 }).map((_, i) =>
-      i < rating ? (
-        <FaStar key={i} className="w-4 h-4 text-floesky" />
-      ) : (
-        <FaRegStar key={i} className="w-4 h-4 text-floesky" />
-      )
-    )}
-  </div>
-);
+const productOptions = ["THE VORTEX", "NIGHT LOTUS"];
 
 const Reviews = () => {
   const [filter, setFilter] = useState("ALL");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [form, setForm] = useState({
+    rating: 5,
+    text: "",
+    author: "",
+    role: "",
+    design: "THE VORTEX",
+  });
+
+  const [reviewList, setReviewList] = useState<Review[]>(reviews);
 
   const filtered =
     filter === "ALL"
-      ? reviews
-      : reviews.filter((r) => r.rating === Number(filter));
+      ? reviewList
+      : reviewList.filter((r) => r.rating === Number(filter));
 
   const average =
-    reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    reviewList.reduce((sum, r) => sum + r.rating, 0) / reviewList.length;
+
+  const handleSubmit = () => {
+    if (!form.text || !form.author || !form.design) return;
+
+    const newReview: Review = {
+      id: reviewList.length + 1,
+      featured: false,
+      rating: form.rating,
+      text: form.text,
+      design: form.design,
+      author: form.author,
+      role: form.role || "BJJ Practitioner",
+      initial: form.author.charAt(0).toUpperCase(),
+    };
+
+    setReviewList([newReview, ...reviewList]);
+    setIsOpen(false);
+
+    setForm({
+      rating: 5,
+      text: "",
+      author: "",
+      role: "",
+      design: "THE VORTEX",
+    });
+  };
 
   return (
     <main className="min-h-screen bg-black">
-      <div className="min-h-screen flex flex-col items-center pt-24 px-10 text-white border border-borderColor pb-20">
-        <div className="flex flex-col md:flex-row justify-between items-start max-w-7xl w-full py-20 gap-6">
+      <div className="min-h-screen flex flex-col items-center pt-20 sm:pt-24 px-6 sm:px-10 text-white border border-borderColor pb-16 sm:pb-20">
+
+        <div className="flex flex-col sm:flex-row justify-between items-start max-w-7xl w-full py-10 sm:py-16 lg:py-20 gap-6">
           <div className="flex flex-col gap-2">
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-floesky font-montserrat text-sm font-bold tracking-widest"
-            >
+            <motion.p className="text-floesky font-montserrat text-xs font-bold tracking-widest">
               COMMUNITY VOICES
             </motion.p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-white text-6xl md:text-[8rem] font-archivo tracking-tighter leading-none"
-            >
+            <motion.h1 className="text-white text-5xl sm:text-7xl md:text-8xl lg:text-[8rem] font-archivo tracking-tighter leading-none">
               ON THE
               <br />
               MAT
             </motion.h1>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col items-start md:items-end gap-1"
-          >
-            <StarRating rating={5} />
-            <span className="font-archivo text-4xl font-bold">
-              {average.toFixed(1)}
-            </span>
-            <span className="text-descText2 font-montserrat text-xs font-bold tracking-widest">
-              {reviews.length} REVIEWS
+          <motion.div className="flex flex-col items-end gap-2 sm:gap-1">
+            <div className="flex flex-col items-end gap-2">
+              <StarRating rating={5} />
+              <span className="font-archivo text-3xl font-bold">
+                {average.toFixed(1)}
+              </span>
+            </div>
+
+            <span className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
+              {reviewList.length} REVIEWS
             </span>
           </motion.div>
         </div>
 
-        <div className="flex gap-4 pb-8 max-w-7xl w-full border-y border-borderColor py-8 flex-wrap">
-          {filters.map((f, i) => (
-            <motion.button
+        <div className="w-full max-w-7xl flex justify-end pb-4">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="border border-floesky text-floesky px-4 py-2 text-xs font-bold tracking-widest hover:bg-floesky/10 transition"
+          >
+            SUBMIT REVIEW
+          </button>
+        </div>
+
+        <div className="flex gap-2 sm:gap-4 pb-8 max-w-7xl w-full border-y border-borderColor py-6 sm:py-8 flex-wrap">
+          {filters.map((f) => (
+            <button
               key={f}
-              initial={{ opacity: 0, y: 0 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 * i }}
               onClick={() => setFilter(f)}
-              className={`border font-montserrat font-bold text-xs px-5 py-2 cursor-pointer transition duration-300 flex items-center gap-1 ${
+              className={`flex items-center gap-2 border font-montserrat font-bold text-sm px-4 py-2 transition ${
                 filter === f
                   ? "border-floesky text-floesky bg-floesky/10"
-                  : "border-borderColor text-white/60 hover:text-floesky hover:border-floesky"
+                  : "border-borderColor text-descText2 hover:text-floesky"
               }`}
             >
-              {f}
-              {f !== "ALL" && <FaStar className="w-3 h-3" />}
-            </motion.button>
+              {f} <FaStar />
+            </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 max-w-7xl w-full border-b border-borderColor">
-          {filtered.map((review, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 max-w-7xl w-full border-b border-borderColor">
+          {filtered.map((review) => (
             <motion.div
               key={review.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * i }}
-              className="flex flex-col gap-3 p-8 border-l border-t border-borderColor"
+              className="flex flex-col gap-3 p-5 sm:p-8 border-l border-t border-borderColor"
             >
-              {review.featured && (
-                <span className="text-floesky font-montserrat text-xs font-bold tracking-widest">
-                  FEATURED
-                </span>
-              )}
-
               <StarRating rating={review.rating} />
 
-              <p className="text-white/80 font-montserrat text-sm leading-relaxed flex-1">
+              <p className="text-desctText text-sm font-montserrat sm:text-base">
                 "{review.text}"
               </p>
 
-              <span className="text-white/40 font-montserrat text-xs font-bold tracking-widest pt-2 border-t border-borderColor">
+              <span className="text-descText2 font-montserrat text-sm font-bold tracking-widest pt-2 border-b pb-4 border-borderColor">
                 DESIGN: {review.design}
               </span>
 
               <div className="flex items-center gap-3 pt-2">
-                <div className="w-8 h-8 rounded-full bg-floesky/20 text-floesky flex items-center justify-center font-archivo font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-floesky/20 text-floesky font-archivo font-normal flex items-center justify-center">
                   {review.initial}
                 </div>
+
                 <div className="flex flex-col">
-                  <span className="font-montserrat text-sm font-bold">
+                  <span className="text-xs font-bold font-archivo">
                     {review.author.toUpperCase()}
                   </span>
-                  <span className="text-white/40 font-montserrat text-xs tracking-widest">
+                  <span className="text-white/40 text-xs font-montserrat font-bold">
                     {review.role.toUpperCase()}
                   </span>
                 </div>
@@ -201,6 +187,96 @@ const Reviews = () => {
           ))}
         </div>
       </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          >
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg bg-black border border-borderColor p-6 flex flex-col gap-4"
+            >
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-3 right-3 text-white hover:text-floesky"
+              >
+                <FaTimes />
+              </button>
+
+              <h2 className="text-white font-archivo text-2xl font-bold">
+                Submit Review
+              </h2>
+
+              <input
+                placeholder="Your Name"
+                value={form.author}
+                onChange={(e) => setForm({ ...form, author: e.target.value })}
+                className="bg-transparent border border-borderColor p-2 text-white text-sm"
+              />
+
+              <input
+                placeholder="Your Role"
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                className="bg-transparent border border-borderColor p-2 text-white text-sm"
+              />
+
+              <select
+                value={form.design}
+                onChange={(e) => setForm({ ...form, design: e.target.value })}
+                className="bg-black border border-borderColor p-2 text-white text-sm"
+              >
+                {productOptions.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-white/60">Rating:</span>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setForm({ ...form, rating: n })}
+                  >
+                    {n <= form.rating ? (
+                      <FaStar className="text-floesky" />
+                    ) : (
+                      <FaRegStar className="text-floesky" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                placeholder="Your review..."
+                value={form.text}
+                onChange={(e) => setForm({ ...form, text: e.target.value })}
+                className="bg-transparent border border-borderColor p-2 text-white text-sm min-h-30"
+              />
+
+              <button
+                onClick={handleSubmit}
+                className="bg-floesky text-black font-bold py-2 text-sm hover:opacity-90 transition"
+              >
+                SUBMIT
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 };

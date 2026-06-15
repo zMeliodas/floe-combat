@@ -45,14 +45,12 @@ const Highlights = () => {
 
   useEffect(() => {
     document.body.style.overflow = selected ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [selected]);
 
   const handleClose = () => {
     setSelected(null);
-    setIsPortrait(false);
+    setIsPortrait(null);
   };
 
   const handleVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -75,14 +73,14 @@ const Highlights = () => {
 
   return (
     <main className="min-h-screen bg-black">
-      <div className="min-h-screen flex flex-col items-center pt-24 px-10 text-white border-b border-borderColor">
-        {/* Header */}
-        <div className="flex flex-col max-w-7xl w-full py-20 gap-2">
+      <div className="min-h-screen flex flex-col items-center pt-20 sm:pt-24 px-6 sm:px-10 text-white border-b border-borderColor">
+
+        <div className="flex flex-col max-w-7xl w-full py-10 sm:py-16 lg:py-20 gap-2">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-floesky font-montserrat text-sm font-bold tracking-widest"
+            className="text-floesky font-montserrat text-xs sm:text-sm font-bold tracking-widest"
           >
             ATHLETE CHRONICLES
           </motion.p>
@@ -90,15 +88,14 @@ const Highlights = () => {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-white text-6xl md:text-[10rem] font-archivo tracking-tighter leading-none"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-white text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-archivo tracking-tighter leading-none"
           >
             HIGHLIGHTS
           </motion.h1>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl w-full pb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-7xl w-full pb-16 sm:pb-20">
           {highlights.map((item, i) => (
             <motion.div
               key={item.id}
@@ -108,17 +105,14 @@ const Highlights = () => {
               onClick={() => setSelected(item)}
               className="group relative aspect-video bg-white/5 border border-borderColor overflow-hidden cursor-pointer"
             >
-              {/* Grid thumbnail — smart fallback */}
               {item.mediaType === "video" ? (
                 item.thumbnail ? (
-                  // Custom thumbnail provided
                   <img
                     src={item.thumbnail}
                     alt={item.title}
                     className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  // No thumbnail — show first frame of video
                   <video
                     src={item.mediaUrl}
                     className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
@@ -128,7 +122,6 @@ const Highlights = () => {
                   />
                 )
               ) : (
-                // Image type
                 <img
                   src={item.mediaUrl}
                   alt={item.title}
@@ -136,18 +129,16 @@ const Highlights = () => {
                 />
               )}
 
-              {/* Different icon for video vs image */}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                 {item.mediaType === "video" ? (
-                  <FaPlay className="w-10 h-10 text-white drop-shadow-lg" />
+                  <FaPlay className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
                 ) : (
-                  <FaExpand className="w-10 h-10 text-white drop-shadow-lg" />
+                  <FaExpand className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
                 )}
               </div>
 
-              {/* Bottom info */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-linear-to-t from-black/80 to-transparent">
-                <h3 className="font-archivo text-lg font-bold tracking-tight">
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-linear-to-t from-black/80 to-transparent">
+                <h3 className="font-archivo text-base sm:text-lg font-bold tracking-tight">
                   {item.title}
                 </h3>
                 <p className="text-white/60 font-montserrat text-xs tracking-widest">
@@ -159,7 +150,6 @@ const Highlights = () => {
         </div>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {selected && (
           <motion.div
@@ -167,7 +157,7 @@ const Highlights = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 overflow-y-auto"
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -179,19 +169,19 @@ const Highlights = () => {
                 isPortrait === null
                   ? "max-w-xl"
                   : isPortrait
-                    ? "max-w-sm"
-                    : "max-w-3xl"
+                    ? "max-w-xs sm:max-w-sm"
+                    : "max-w-lg sm:max-w-2xl lg:max-w-3xl"
               }`}
             >
-              {/* Close button */}
+
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center bg-black/20 rounded-3xl text-white hover:text-floesky transition duration-300"
+                aria-label="Close"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-black/40 rounded-full text-white hover:text-floesky transition duration-300"
               >
-                <FaTimes className="w-4 h-4" />
+                <FaTimes className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
 
-              {/* Render video or image based on mediaType */}
               {selected.mediaType === "video" ? (
                 <video
                   key={selected.id}
@@ -210,13 +200,12 @@ const Highlights = () => {
                   src={selected.mediaUrl}
                   alt={selected.title}
                   className="w-full object-contain"
-                  onLoad={handleImageLoad} // 👈 detect portrait for images too
+                  onLoad={handleImageLoad}
                 />
               )}
 
-              {/* Info */}
-              <div className="flex flex-col gap-2 p-6">
-                <h3 className="font-archivo text-white text-2xl font-bold tracking-tight">
+              <div className="flex flex-col gap-1.5 sm:gap-2 p-4 sm:p-6">
+                <h3 className="font-archivo text-white text-xl sm:text-2xl font-bold tracking-tight">
                   {selected.title}
                 </h3>
                 <p className="text-descText font-montserrat text-xs tracking-widest">

@@ -16,6 +16,7 @@ const projects: Project[] = [
     description:
       "In the heat of the exchange, let the chaos fade. The Night Lotus set is crafted for the fighters who finds strength in composure and power in the quiet moments of the roll. Featuring an ergonomic compression fit and extended torso length to prevent ride up during live training.",
     image: nightlotus,
+    sizes: ["XS", "S", "M", "L", "XL"],
   },
   {
     id: 2,
@@ -24,6 +25,7 @@ const projects: Project[] = [
     description:
       "In the chaos of the roll, find your focus. The Vortex rashguard is designed for practitioners who prioritize movement and technical precision.",
     image: thevortex,
+    sizes: ["XS", "S", "M", "L", "XL"],
   },
 ];
 
@@ -43,13 +45,13 @@ const Products = () => {
 
   return (
     <main className="min-h-screen bg-black">
-      <div className="min-h-screen flex flex-col items-center pt-24 px-10 text-white border-b border-borderColor">
-        <div className="flex flex-col max-w-7xl w-full py-20 gap-2">
+      <div className="min-h-screen flex flex-col items-center pt-20 sm:pt-24 px-6 sm:px-10 text-white border-b border-borderColor">
+        <div className="flex flex-col max-w-7xl w-full py-10 sm:py-16 lg:py-20 gap-2">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-floesky font-montserrat text-sm font-bold tracking-widest"
+            className="text-floesky font-montserrat text-xs sm:text-sm font-bold tracking-widest"
           >
             THE DESIGN DOSSIER
           </motion.p>
@@ -57,14 +59,14 @@ const Products = () => {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-white text-6xl md:text-[10rem] font-archivo tracking-tighter leading-none"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-white text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-archivo tracking-tighter leading-none"
           >
             PRODUCTS
           </motion.h1>
         </div>
 
-        <div className="flex gap-4 py-8 max-w-7xl w-full border-y border-borderColor flex-wrap">
+        <div className="flex gap-2 sm:gap-4 py-6 sm:py-8 max-w-7xl w-full border-y border-borderColor flex-wrap">
           {categories.map((cat, i) => (
             <FilterButton
               key={cat}
@@ -77,7 +79,7 @@ const Products = () => {
         </div>
 
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 max-w-7xl w-full pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 max-w-7xl w-full pb-16 sm:pb-20">
             {filtered.map((project, i) => (
               <motion.div
                 key={project.id}
@@ -95,23 +97,37 @@ const Products = () => {
 
                 <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col gap-2">
+                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 flex flex-col gap-1.5 sm:gap-2">
                   <span className="text-floesky font-montserrat text-xs font-bold tracking-widest">
                     {project.category}
                   </span>
-                  <h3 className="font-archivo text-2xl font-bold tracking-tight">
+
+                  <h3 className="font-archivo text-xl sm:text-2xl font-bold tracking-tight">
                     {project.title}
                   </h3>
-                  <p className="text-descText font-montserrat text-sm leading-relaxed line-clamp-2">
+
+                  <p className="text-descText font-montserrat text-xs sm:text-sm leading-relaxed line-clamp-2">
                     {project.description}
                   </p>
+
+                  {/* SIZES (CARD) */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {project.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="text-[10px] px-2 py-0.5 border border-white/20 text-white/70"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center flex-1 gap-2">
-            <span className="text-semitrans font-archivo text-7xl font-bold">
+          <div className="flex flex-col items-center justify-center flex-1 gap-2 py-20">
+            <span className="text-semitrans font-archivo text-5xl sm:text-7xl font-bold">
               0
             </span>
             <p className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
@@ -127,7 +143,7 @@ const Products = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelected(null)}
-              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6 overflow-y-auto custom-scroll"
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -135,33 +151,51 @@ const Products = () => {
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ duration: 0.3 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative max-w-3xl w-full my-auto bg-black border border-borderColor overflow-hidden"
+                className="relative max-w-sm sm:max-w-xl lg:max-w-3xl w-full my-auto bg-black border border-borderColor overflow-hidden"
               >
                 <button
                   onClick={() => setSelected(null)}
-                  className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center bg-black/60 text-white hover:text-floesky transition duration-300"
+                  aria-label="Close"
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-black/40 rounded-full text-white hover:text-floesky transition duration-300"
                 >
-                  <FaTimes className="w-4 h-4" />
+                  <FaTimes className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
 
-                <div className="w-full">
-                  <img
-                    src={selected.image}
-                    alt={selected.title}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+                <img
+                  src={selected.image}
+                  alt={selected.title}
+                  className="w-full h-full object-contain"
+                />
 
-                <div className="flex flex-col gap-2 p-8">
+                <div className="flex flex-col gap-4 p-5 sm:p-8">
                   <span className="text-floesky font-montserrat text-xs font-bold tracking-widest">
                     {selected.category}
                   </span>
-                  <h3 className="font-archivo text-3xl font-bold tracking-tight">
+
+                  <h3 className="font-archivo text-2xl sm:text-3xl font-bold tracking-tight">
                     {selected.title}
                   </h3>
-                  <p className="text-descText font-montserrat text-sm leading-relaxed">
+
+                  <p className="text-descText font-montserrat text-xs sm:text-sm leading-relaxed">
                     {selected.description}
                   </p>
+
+                  <div className="flex flex-col gap-2 pt-2">
+                    <span className="text-white/60 text-xs tracking-widest">
+                      AVAILABLE SIZES
+                    </span>
+
+                    <div className="flex flex-wrap gap-2">
+                      {selected.sizes.map((size) => (
+                        <span
+                          key={size}
+                          className="px-3 py-1 border border-white/20 text-white text-xs"
+                        >
+                          {size}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </motion.div>

@@ -20,6 +20,18 @@ export interface Project {
   category: string;
   description: string;
   image: string;
+  sizes: string[];
+}
+
+export interface Review {
+  id: number;
+  featured?: boolean;
+  rating: number;
+  text: string;
+  design: string;
+  author: string;
+  role: string;
+  initial: string;
 }
 
 export type Theme = "light" | "dark";
