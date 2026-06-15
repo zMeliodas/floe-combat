@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import floe from "../../assets/floeimage.jpg";
+import floe from "../../assets/images/floeimage.jpg";
 
 const About = () => {
   return (

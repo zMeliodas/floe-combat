@@ -5,13 +5,14 @@ export interface FilterButtonProps {
   delay?: number;
 }
 
-export interface Highlight {
+export type Highlight = {
   id: number;
   title: string;
   athlete: string;
-  videoUrl: string;
-  thumbnail: string;
-}
+  mediaType: "video" | "image";   
+  mediaUrl: string;               
+  thumbnail?: string;             
+};
 
 export interface Project {
   id: number;

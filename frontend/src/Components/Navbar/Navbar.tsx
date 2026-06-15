@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import logo from "../../assets/floelogo.svg";
+import logo from "../../assets/logos/floelogo.svg";
 import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {

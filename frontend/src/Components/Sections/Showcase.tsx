@@ -1,4 +1,4 @@
-import floevid from "../../assets/FloePH.mp4";
+import floevid from "../../assets/videos/FloePH.mp4";
 
 const Showcase = () => {
   return (

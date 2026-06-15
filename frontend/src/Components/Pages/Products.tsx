@@ -2,8 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import FilterButton from "../common/FilterButton";
-import nightlotus from "../../assets/projects/night-lotus.jpg";
-import thevortex from "../../assets/projects/the-vortex.jpg";
+import nightlotus from "../../assets/images/products/night-lotus.jpg";
+import thevortex from "../../assets/images/products/the-vortex.jpg";
 import type { Project } from "../../types/types";
 
 const categories = ["ALL", "SHORT SLEEVE", "LONG SLEEVE", "SPATS", "FULL SET"];
