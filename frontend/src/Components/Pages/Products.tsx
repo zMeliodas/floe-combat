@@ -131,7 +131,7 @@ const Products = () => {
               0
             </span>
             <p className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
-              NO PROJECTS YET
+              NO PRODUCTS YET
             </p>
           </div>
         )}

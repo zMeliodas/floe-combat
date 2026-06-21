@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -55,13 +56,19 @@ const Hero = () => {
           transition={{ duration: 0.6, delay: 1 }}
           className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
         >
-          <button className="bg-floesky font-montserrat font-bold text-white text-xs sm:text-sm w-full sm:w-66 h-11 sm:h-13 tracking-widest animate-[neonPulse_2.5s_ease-in-out_infinite] transition-all duration-300 hover:bg-white hover:text-black cursor-pointer">
-            START COMMISSION →
-          </button>
+          <Link
+            to="/order"
+            className="flex justify-center items-center bg-floesky font-montserrat font-bold text-white text-xs sm:text-sm w-full sm:w-66 h-11 sm:h-13 tracking-widest animate-[neonPulse_2.5s_ease-in-out_infinite] transition-all duration-300 hover:bg-white hover:text-black cursor-pointer"
+          >
+            GET STARTED →
+          </Link>
           <div className="flex items-center gap-2 group">
-            <span className="content-center font-montserrat text-descText text-xs sm:text-sm h-12 tracking-widest group-hover:text-white transition cursor-pointer">
+            <Link
+              to="/products"
+              className="content-center font-montserrat text-descText text-xs sm:text-sm h-12 tracking-widest group-hover:text-white transition cursor-pointer"
+            >
               VIEW PRODUCTS
-            </span>
+            </Link>
             <span className="inline-block w-6 h-px bg-descText group-hover:bg-white transition"></span>
           </div>
         </motion.div>

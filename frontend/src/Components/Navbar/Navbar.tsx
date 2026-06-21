@@ -30,7 +30,7 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 z-50 min-w-full h-22 border-b border-borderColor bg-nav backdrop-blur-md">
         <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-10 flex items-center justify-between">
-          {/* Logo */}
+    
           <img
             src={logo}
             alt="logo"
@@ -38,7 +38,6 @@ const Navbar = () => {
             className="w-20 h-20 sm:w-24 sm:h-24 cursor-pointer"
           />
 
-          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-10">
             <NavLink to="/products" className={navClass}>
               PRODUCTS
@@ -57,12 +56,10 @@ const Navbar = () => {
             </NavLink>
           </div>
 
-          {/* Desktop Theme Toggle */}
           <div className="hidden lg:block">
             <ThemeToggle />
           </div>
 
-          {/* Mobile Controls */}
           <div className="flex lg:hidden items-center gap-4">
             <ThemeToggle />
 
@@ -76,7 +73,6 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <div
         className={`
           fixed top-22 right-0 z-40
