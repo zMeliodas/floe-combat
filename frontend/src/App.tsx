@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -14,6 +15,11 @@ import Order from "./Components/Pages/Order";
 import Reviews from "./Components/Pages/Reviews";
 import Footer from "./Components/Sections/Footer";
 import AdminPanel from "./admin/AdminPanel";
+import AdminHighlights from "./admin/components/Pages/AdminHighlights";
+import AdminOrderSteps from "./admin/components/Pages/AdminOrderSteps";
+import AdminProducts from "./admin/components/Pages/AdminProducts";
+import AdminReviews from "./admin/components/Pages/AdminReviews";
+import AdminDashboard from "./admin/components/Pages/AdminDashboard";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -28,7 +34,7 @@ function ScrollToTop() {
 function AppContent() {
   const location = useLocation();
 
-  const isAdminPage = location.pathname === "/admin";
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -37,7 +43,15 @@ function AppContent() {
       {!isAdminPage && <Navbar />}
 
       <Routes>
-        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin" element={<AdminPanel />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="highlights" element={<AdminHighlights />} />
+          <Route path="reviews" element={<AdminReviews />} />
+          <Route path="order-steps" element={<AdminOrderSteps />} />
+        </Route>
+
         <Route path="/" element={<LandingPage />} />
         <Route path="/products" element={<Products />} />
         <Route path="/highlights" element={<Highlights />} />

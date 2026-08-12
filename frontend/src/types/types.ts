@@ -1,10 +1,3 @@
-export interface FilterButtonProps {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-  delay?: number;
-}
-
 export type Highlight = {
   id: number;
   title: string;

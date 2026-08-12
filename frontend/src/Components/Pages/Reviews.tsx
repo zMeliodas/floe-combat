@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaStar, FaRegStar, FaTimes } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { FaStar } from "react-icons/fa";
 import type { Review } from "../../types/types";
 import StarRating from "../common/StarRating";
+import ReviewModal from "../common/ReviewModal";
 
 const reviews: Review[] = [
   {
@@ -100,7 +101,6 @@ const Reviews = () => {
   return (
     <main className="min-h-screen bg-black">
       <div className="min-h-screen flex flex-col items-center pt-20 sm:pt-24 px-6 sm:px-10 text-white border border-borderColor pb-16 sm:pb-20">
-
         <div className="flex flex-col sm:flex-row justify-between items-start max-w-7xl w-full py-10 sm:py-16 lg:py-20 gap-6">
           <div className="flex flex-col gap-2">
             <motion.p className="text-floesky font-montserrat text-xs font-bold tracking-widest">
@@ -188,95 +188,14 @@ const Reviews = () => {
         </div>
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsOpen(false)}
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-          >
-            <motion.div
-              key="modal"
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg bg-black border border-borderColor p-6 flex flex-col gap-4"
-            >
-              <button
-                onClick={() => setIsOpen(false)}
-                className="absolute top-3 right-3 text-white hover:text-floesky"
-              >
-                <FaTimes />
-              </button>
-
-              <h2 className="text-white font-archivo text-2xl font-bold">
-                Submit Review
-              </h2>
-
-              <input
-                placeholder="Your Name"
-                value={form.author}
-                onChange={(e) => setForm({ ...form, author: e.target.value })}
-                className="bg-transparent border border-borderColor p-2 text-white text-sm"
-              />
-
-              <input
-                placeholder="Your Role"
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="bg-transparent border border-borderColor p-2 text-white text-sm"
-              />
-
-              <select
-                value={form.design}
-                onChange={(e) => setForm({ ...form, design: e.target.value })}
-                className="bg-black border border-borderColor p-2 text-white text-sm"
-              >
-                {productOptions.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex gap-2 items-center">
-                <span className="text-xs text-white/60">Rating:</span>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setForm({ ...form, rating: n })}
-                  >
-                    {n <= form.rating ? (
-                      <FaStar className="text-floesky" />
-                    ) : (
-                      <FaRegStar className="text-floesky" />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <textarea
-                placeholder="Your review..."
-                value={form.text}
-                onChange={(e) => setForm({ ...form, text: e.target.value })}
-                className="bg-transparent border border-borderColor p-2 text-white text-sm min-h-30"
-              />
-
-              <button
-                onClick={handleSubmit}
-                className="bg-floesky text-black font-bold py-2 text-sm hover:opacity-90 transition"
-              >
-                SUBMIT
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ReviewModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        form={form}
+        setForm={setForm}
+        productOptions={productOptions}
+        onSubmit={handleSubmit}
+      />
     </main>
   );
 };

@@ -3,11 +3,20 @@ import { MdDashboard } from "react-icons/md";
 import { FaVideo } from "react-icons/fa";
 import { FaRegStar } from "react-icons/fa";
 import { GoListOrdered } from "react-icons/go";
+import { NavLink } from "react-router-dom";
+import ThemeToggle from "../../Components/Navbar/ThemeToggle";
 
 const Sidebar = () => {
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-3 px-5 py-2.5 border-l-2 transition-colors ${
+      isActive
+        ? "border-l-floesky bg-floesky/5 text-floesky"
+        : "border-l-transparent text-descText2 hover:text-floesky hover:bg-white/5"
+    }`;
+
   return (
-    <aside className="w-55 shrink-0 border-r border-white/5 flex flex-col">
-      <div className="px-5 py-5 border-b border-white/5">
+    <aside className="w-55 shrink-0 border-r border-borderColor flex flex-col">
+      <div className="px-5 py-5 border-b border-borderColor">
         <div className="font-archivo text-lg tracking-[3px] text-white">
           FLOE COMBAT
         </div>
@@ -17,45 +26,37 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 py-3">
-        <div className="px-5 py-2 font-montserrat text-[12px] tracking-[2px] text-white/20">
+        <div className="px-5 py-2 font-montserrat text-[12px] tracking-[2px] text-descText2">
           OVERVIEW
         </div>
 
-        <div className="flex items-center gap-3 px-5 py-2.5 border-l-2 border-l-floesky bg-floesky/5 text-floesky cursor-pointer">
-          <span>
-            <MdDashboard size={20} />
-          </span>
+        <NavLink to="/admin/dashboard" end className={navClass}>
+          <MdDashboard size={20} />
           <span className="font-montserrat text-sm tracking-wider">
             Dashboard
           </span>
-        </div>
+        </NavLink>
 
-        <div className="px-5 py-2 mt-2 font-montserrat text-[12px] tracking-[2px] text-white/20">
+        <div className="px-5 py-2 mt-2 font-montserrat text-[12px] tracking-[2px] text-descText2">
           CONTENT
         </div>
 
-        <div className="flex items-center gap-3 px-5 py-2.5 border-l-2 border-l-transparent text-white/40 cursor-pointer hover:text-white hover:bg-white/5">
-          <span>
-            <FaTshirt size={20} />
-          </span>
+        <NavLink to="/admin/products" className={navClass}>
+          <FaTshirt size={20} />
           <span className="font-montserrat text-sm tracking-wider">
             Products
           </span>
-        </div>
+        </NavLink>
 
-        <div className="flex items-center gap-3 px-5 py-2.5 border-l-2 border-l-transparent text-white/40 cursor-pointer hover:text-white hover:bg-white/5">
-          <span>
-            <FaVideo size={20} />
-          </span>
+        <NavLink to="/admin/highlights" className={navClass}>
+          <FaVideo size={20} />
           <span className="font-montserrat text-sm tracking-wider">
             Highlights
           </span>
-        </div>
+        </NavLink>
 
-        <div className="flex items-center gap-3 px-5 py-2.5 border-l-2 border-l-transparent text-white/40 cursor-pointer hover:text-white hover:bg-white/5">
-          <span>
-            <FaRegStar size={20} />
-          </span>
+        <NavLink to="/admin/reviews" className={navClass}>
+          <FaRegStar size={20} />
           <span className="font-montserrat text-sm tracking-wider">
             Reviews
           </span>
@@ -63,26 +64,27 @@ const Sidebar = () => {
           <span className="ml-auto bg-floesky text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">
             3
           </span>
-        </div>
+        </NavLink>
 
-        <div className="flex items-center gap-3 px-5 py-2.5 border-l-2 border-l-transparent text-white/40 cursor-pointer hover:text-white hover:bg-white/5">
-          <span>
-            <GoListOrdered size={20} />
-          </span>
+        <NavLink to="/admin/order-steps" className={navClass}>
+          <GoListOrdered size={20} />
           <span className="font-montserrat text-sm tracking-wider">
             Order Steps
           </span>
-        </div>
+        </NavLink>
       </nav>
 
-      {/* Footer */}
-      <div className="px-5 py-4 border-t border-white/5 flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full bg-floesky/10 text-floesky flex items-center justify-center font-archivo text-xs font-bold">
-          A
+      <div className="px-5 py-4 border-t border-borderColor flex items-center gap-2">
+        <div className="flex-1 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-floesky/10 text-floesky flex items-center justify-center font-archivo text-xs font-bold">
+            A
+          </div>
+          <span className="font-montserrat text-xs text-descText2 tracking-wider">
+            Admin
+          </span>
         </div>
-        <span className="font-montserrat text-xs text-white/30 tracking-wider">
-          Admin
-        </span>
+
+        <ThemeToggle size={20} />
       </div>
     </aside>
   );

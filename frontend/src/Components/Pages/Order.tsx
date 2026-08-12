@@ -82,7 +82,7 @@ const Order = () => {
                 "
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-floesky text-truewhite flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-floesky text-truewhite flex items-center justify-center shrink-0">
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <span className="text-semitrans font-archivo text-4xl sm:text-5xl font-bold leading-none">

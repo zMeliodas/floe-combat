@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="relative overflow-hidden bg-black text-white px-6 sm:px-10 lg:px-20 pt-16 pb-16">
-      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-0 text-[12rem] sm:text-[18rem] lg:text-[25rem] font-black font-archivo text-white/3 leading-none tracking-tighter whitespace-nowrap select-none">
+      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-0 text-[12rem] sm:text-[18rem] lg:text-[25rem] font-black font-archivo text-semitrans leading-none tracking-tighter whitespace-nowrap select-none">
         FLOE
       </div>
 
@@ -13,17 +13,17 @@ const Footer = () => {
           <div className="text-sm font-montserrat font-bold text-blue-400 tracking-wider mb-3">
             COMBAT
           </div>
-          <p className="text-sm font-montserrat text-white/40 leading-relaxed max-w-xs">
+          <p className="text-sm font-montserrat text-descText2 leading-relaxed max-w-xs">
             Where art meets the mat. Custom BJJ rashguards built by
             practitioners, for practitioners.
           </p>
         </div>
 
         <div>
-          <div className="text-sm font-montserrat font-bold text-white/40 tracking-wider mb-4">
+          <div className="text-sm font-montserrat font-bold text-descText2 tracking-wider mb-4">
             NAVIGATE
           </div>
-          <ul className="flex flex-col gap-2.5 text-sm text-white/40 font-montserrat">
+          <ul className="flex flex-col gap-2.5 text-sm text-descText font-montserrat">
             {[
               { to: "/products", label: "Products" },
               { to: "/highlights", label: "Highlights" },
@@ -73,7 +73,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="relative z-10 mt-16 pt-5 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-2 text-xs sm:text-sm font-montserrat font-bold tracking-widest text-white/40">
+      <div className="relative z-10 mt-16 pt-5 border-t border-borderColor flex flex-col sm:flex-row justify-between gap-2 text-xs sm:text-sm font-montserrat font-bold tracking-widest text-white/40">
         <span>© 2026 FLOE COMBAT. ALL RIGHTS RESERVED.</span>
         <span className="sm:text-right">WHERE ART MEETS THE MAT.</span>
       </div>

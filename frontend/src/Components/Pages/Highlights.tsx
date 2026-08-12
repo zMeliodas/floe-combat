@@ -131,9 +131,9 @@ const Highlights = () => {
 
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                 {item.mediaType === "video" ? (
-                  <FaPlay className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
+                  <FaPlay className="w-8 h-8 sm:w-10 sm:h-10 text-descText drop-shadow-lg" />
                 ) : (
-                  <FaExpand className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
+                  <FaExpand className="w-8 h-8 sm:w-10 sm:h-10 text-descText drop-shadow-lg" />
                 )}
               </div>
 

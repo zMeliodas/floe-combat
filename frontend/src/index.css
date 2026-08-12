@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
-@variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *));
 
 @font-face {
   font-family: "Swiss 721 Black Extended";
@@ -10,13 +10,13 @@
 
 @theme {
   --color-floesky: #2c88c4;
-  --color-black: #fafafa;
+  --color-black: #F8F8F5;
   --color-nav: #ffffffe6;
   --color-white: #111111;
   --color-descText: #525252;
   --color-descText2: #737373;
   --color-semitrans: #a0a0a0;
-  --color-borderColor: #e5e5e5;
+  --color-borderColor: #d5d5d5;
 
   --font-archivo: "Archivo Black", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;

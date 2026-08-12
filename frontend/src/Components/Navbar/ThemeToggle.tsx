@@ -2,7 +2,11 @@ import { FiSun, FiMoon } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../context/ThemeProvider";
 
-export default function ThemeToggle() {
+interface ThemeToggleProps {
+  size?: number;
+}
+
+export default function ThemeToggle({ size = 28 }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -20,7 +24,7 @@ export default function ThemeToggle() {
             exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
             transition={{ duration: 0.25 }}
           >
-            <FiSun size={28} />
+            <FiSun size={size} />
           </motion.div>
         ) : (
           <motion.div
@@ -30,7 +34,7 @@ export default function ThemeToggle() {
             exit={{ opacity: 0, rotate: -90, scale: 0.5 }}
             transition={{ duration: 0.25 }}
           >
-            <FiMoon size={28} />
+            <FiMoon size={size} />
           </motion.div>
         )}
       </AnimatePresence>
