@@ -23,16 +23,11 @@ const ProductFormModal = ({
   const [form, setForm] = useState<ProductFormValues>(emptyForm);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // Tracks blob URLs we created locally so we can revoke them and avoid
-  // leaking memory. Only object URLs created here get revoked — real
-  // (http) URLs from an existing product are left untouched.
   const objectUrlRef = useRef<string | null>(null);
 
-  // Reset/populate the form whenever the modal opens
   useEffect(() => {
     if (!isOpen) return;
 
-    // Discard any unsaved local preview from a previous open
     if (objectUrlRef.current) {
       URL.revokeObjectURL(objectUrlRef.current);
       objectUrlRef.current = null;
@@ -51,7 +46,6 @@ const ProductFormModal = ({
     }
   }, [isOpen, editingProduct, categories]);
 
-  // Revoke any local preview URL on unmount
   useEffect(() => {
     return () => {
       if (objectUrlRef.current) {
@@ -60,9 +54,6 @@ const ProductFormModal = ({
     };
   }, []);
 
-  // NOTE: this is a dummy upload — it only creates a local preview via
-  // URL.createObjectURL. Nothing is sent anywhere. Once the backend exists,
-  // swap this for an actual upload call and store the returned URL instead.
   const handleFileSelect = (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
 

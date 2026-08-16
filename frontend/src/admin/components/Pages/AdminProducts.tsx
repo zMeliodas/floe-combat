@@ -5,7 +5,7 @@ import thevortex from "../../../assets/images/products/the-vortex.jpg";
 import type { ProductFormValues } from "../../../types/admintypes";
 import type { Project } from "../../../types/types";
 import ProductFormModal from "../../components/common/ProductFormModal";
-import DeleteConfirmModal from "../../components/common/ProductDeleteModal";
+import DeleteConfirmModal from "../common/DeleteConfirmModal";
 import ImagePreviewModal from "../../components/common/ImagePreviewModal";
 
 // NOTE: UI only for now — everything lives in local state. Once this is

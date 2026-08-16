@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import type { Highlight } from "../../../types/types";
 import HighlightFormModal from "../../components/common/HighlightFormModal";
-import DeleteConfirmModal from "../../components/common/ProductDeleteModal";
+import DeleteConfirmModal from "../common/DeleteConfirmModal";
 import ImagePreviewModal from "../../components/common/ImagePreviewModal";
 import VideoPreviewModal from "../../components/common/VideoPreviewModal";
 import type { HighlightFormValues } from "../../../types/admintypes";

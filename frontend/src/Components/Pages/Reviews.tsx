@@ -3,11 +3,98 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaStar, FaRegStar, FaTimes } from "react-icons/fa";
 import type { Review } from "../../types/types";
 import StarRating from "../common/StarRating";
-import { useReviewsStore } from "../../data/reviewsStore";
 
 const filters = ["ALL", "5", "4", "3", "2", "1"];
 
 const productOptions = ["THE VORTEX", "NIGHT LOTUS"];
+
+// UI-ONLY VERSION
+// This is a presentational-only version of the public reviews page. All
+// data below is dummy/mock data kept in local component state — there is
+// no store, backend, or persistence of any kind. Submitting the form just
+// pushes a "pending" review into local state (so, per the real behavior,
+// it won't show up in the public list below), and everything resets on
+// refresh.
+
+const dummyReviews: Review[] = [
+  {
+    id: 1,
+    status: "approved",
+    author: "Ana Lucia Reyes",
+    role: "BJJ Brown Belt",
+    design: "NIGHT LOTUS",
+    rating: 5,
+    text: "The design is stunning and it doesn't fade after washing, highly recommend.",
+    featured: true,
+    initial: "A",
+  },
+  {
+    id: 2,
+    status: "approved",
+    author: "Coach Ronnie DC",
+    role: "BJJ Purple Belt",
+    design: "THE VORTEX",
+    rating: 5,
+    text: "My whole academy wears these now, quality is unreal for the price.",
+    featured: true,
+    initial: "R",
+  },
+  {
+    id: 3,
+    status: "approved",
+    author: "Tyler Voss",
+    role: "MMA Athlete",
+    design: "THE VORTEX",
+    rating: 4,
+    text: "Great compression fit, breathable even during long sparring sessions.",
+    featured: false,
+    initial: "T",
+  },
+  {
+    id: 4,
+    status: "approved",
+    author: "Sofia Marchetti",
+    role: "BJJ White Belt",
+    design: "NIGHT LOTUS",
+    rating: 2,
+    text: "Nice look but the sizing chart was a bit off for me.",
+    featured: false,
+    initial: "S",
+  },
+  {
+    id: 5,
+    status: "approved",
+    author: "Jamal Whitfield",
+    role: "BJJ Black Belt",
+    design: "THE VORTEX",
+    rating: 5,
+    text: "Been competing in these for a year, zero complaints.",
+    featured: false,
+    initial: "J",
+  },
+  {
+    id: 6,
+    status: "approved",
+    author: "Priya Nandakumar",
+    role: "BJJ Practitioner",
+    design: "NIGHT LOTUS",
+    rating: 4,
+    text: "Really like the print, fit runs a touch small so size up.",
+    featured: false,
+    initial: "P",
+  },
+  {
+    id: 7,
+    status: "approved",
+    author: "Devon Okafor",
+    role: "No-Gi Competitor",
+    design: "THE VORTEX",
+    rating: 3,
+    text: "Solid rashguard, seams held after a hard training camp.",
+    featured: false,
+    initial: "D",
+  },
+];
 
 const Reviews = () => {
   const [filter, setFilter] = useState("ALL");
@@ -22,7 +109,7 @@ const Reviews = () => {
     design: "THE VORTEX",
   });
 
-  const [reviewList, setReviewList] = useReviewsStore();
+  const [reviewList, setReviewList] = useState<Review[]>(dummyReviews);
 
   // Only approved reviews are ever shown publicly — anything pending sits
   // in the admin queue until approved.

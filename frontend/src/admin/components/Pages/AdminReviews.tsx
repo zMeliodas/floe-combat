@@ -11,22 +11,106 @@ import {
 import type { Review } from "../../../types/types";
 import type { ReviewFormValues } from "../../../types/admintypes";
 import ReviewFormModal from "../../components/common/ReviewFormModal";
-import DeleteConfirmModal from "../../components/common/ProductDeleteModal";
-import { useReviewsStore } from "../../../data/reviewsStore";
-
-// NOTE: reviews are submitted from the public Reviews.tsx page as
-// "pending" and land here for approval before they ever show up publicly.
-// Both pages currently share state via a localStorage-backed store
-// (src/data/reviewsStore.ts) as a stand-in until there's a real backend —
-// see the NOTE in that file for how to swap it out later.
+import DeleteConfirmModal from "../common/DeleteConfirmModal";
 
 const designOptions = ["THE VORTEX", "NIGHT LOTUS"];
 const ratingFilters = ["ALL", "5", "4", "3", "2", "1"];
 
 type Tab = "pending" | "approved";
 
+const dummyReviews: Review[] = [
+  {
+    id: 1,
+    status: "pending",
+    author: "Marcus Alden",
+    role: "BJJ Blue Belt",
+    design: "THE VORTEX",
+    rating: 5,
+    text: "Rolled in this all weekend at the gym, holds up better than anything else I own.",
+    featured: false,
+    initial: "M",
+  },
+  {
+    id: 2,
+    status: "pending",
+    author: "Priya Nandakumar",
+    role: "BJJ Practitioner",
+    design: "NIGHT LOTUS",
+    rating: 4,
+    text: "Really like the print, fit runs a touch small so size up.",
+    featured: false,
+    initial: "P",
+  },
+  {
+    id: 3,
+    status: "pending",
+    author: "Devon Okafor",
+    role: "No-Gi Competitor",
+    design: "THE VORTEX",
+    rating: 3,
+    text: "Solid rashguard, seams held after a hard training camp.",
+    featured: false,
+    initial: "D",
+  },
+  {
+    id: 4,
+    status: "approved",
+    author: "Coach Ronnie DC",
+    role: "BJJ Purple Belt",
+    design: "THE VORTEX",
+    rating: 5,
+    text: "My whole academy wears these now, quality is unreal for the price.",
+    featured: true,
+    initial: "R",
+  },
+  {
+    id: 5,
+    status: "approved",
+    author: "Ana Lucia Reyes",
+    role: "BJJ Brown Belt",
+    design: "NIGHT LOTUS",
+    rating: 5,
+    text: "The design is stunning and it doesn't fade after washing, highly recommend.",
+    featured: true,
+    initial: "A",
+  },
+  {
+    id: 6,
+    status: "approved",
+    author: "Tyler Voss",
+    role: "MMA Athlete",
+    design: "THE VORTEX",
+    rating: 4,
+    text: "Great compression fit, breathable even during long sparring sessions.",
+    featured: false,
+    initial: "T",
+  },
+  {
+    id: 7,
+    status: "approved",
+    author: "Sofia Marchetti",
+    role: "BJJ White Belt",
+    design: "NIGHT LOTUS",
+    rating: 2,
+    text: "Nice look but the sizing chart was a bit off for me.",
+    featured: false,
+    initial: "S",
+  },
+  {
+    id: 8,
+    status: "approved",
+    author: "Jamal Whitfield",
+    role: "BJJ Black Belt",
+    design: "THE VORTEX",
+    rating: 5,
+    text: "Been competing in these for a year, zero complaints.",
+    featured: false,
+    initial: "J",
+  },
+];
+
 const AdminReviews = () => {
-  const [reviews, setReviews] = useReviewsStore();
+  const [reviews, setReviews] = useState<Review[]>(dummyReviews);
   const [tab, setTab] = useState<Tab>("pending");
 
   const [search, setSearch] = useState("");
@@ -137,7 +221,7 @@ const AdminReviews = () => {
           className={`flex items-center gap-2 px-4 py-2 text-xs font-montserrat font-bold tracking-wider border transition ${
             tab === "pending"
               ? "border-floesky bg-floesky/10 text-floesky"
-              : "border-white/10 text-white/40 hover:border-white/25"
+              : "border-borderColor text-descText hover:border-floesky hover:text-floesky"
           }`}
         >
           PENDING
@@ -153,7 +237,7 @@ const AdminReviews = () => {
           className={`px-4 py-2 text-xs font-montserrat font-bold tracking-wider border transition ${
             tab === "approved"
               ? "border-floesky bg-floesky/10 text-floesky"
-              : "border-white/10 text-white/40 hover:border-white/25"
+              : "border-borderColor text-descText hover:border-floesky hover:text-floesky"
           }`}
         >
           APPROVED ({approved.length})
@@ -161,7 +245,7 @@ const AdminReviews = () => {
       </div>
 
       {tab === "pending" ? (
-        <div className="border border-white/5 bg-white/[0.02] overflow-hidden">
+        <div className="border border-borderColor bg-white/2 overflow-hidden">
           {pending.length > 0 ? (
             <div className="flex flex-col divide-y divide-white/5">
               {pending.map((review) => (
@@ -178,7 +262,7 @@ const AdminReviews = () => {
                       <span className="font-montserrat text-sm font-bold text-white">
                         {review.author}
                       </span>
-                      <span className="font-montserrat text-[11px] text-white/25">
+                      <span className="font-montserrat text-[11px] text-descText">
                         {review.role}
                       </span>
                       <span className="font-montserrat text-[11px] tracking-wider text-floesky">
@@ -192,13 +276,13 @@ const AdminReviews = () => {
                             className={
                               i < review.rating
                                 ? "text-floesky"
-                                : "text-white/10"
+                                : "text-descText2"
                             }
                           />
                         ))}
                       </div>
                     </div>
-                    <p className="font-montserrat text-xs text-white/40 leading-relaxed">
+                    <p className="font-montserrat text-xs text-descText2 leading-relaxed">
                       "{review.text}"
                     </p>
                   </div>
@@ -213,7 +297,7 @@ const AdminReviews = () => {
                     </button>
                     <button
                       onClick={() => setRejectTarget(review)}
-                      className="flex items-center gap-1.5 border border-white/10 text-white/40 font-montserrat text-[11px] px-3 py-1.5 tracking-wider hover:border-red-400/50 hover:text-red-400 transition"
+                      className="flex items-center gap-1.5 border border-borderColor text-descText font-montserrat text-[11px] px-3 py-1.5 tracking-wider hover:border-red-400/50 hover:text-red-400 transition"
                     >
                       <FaTimes size={10} />
                       REJECT
@@ -224,10 +308,10 @@ const AdminReviews = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 py-16">
-              <span className="text-white/10 font-archivo text-5xl font-bold">
+              <span className="text-descText2 font-archivo text-5xl font-bold">
                 0
               </span>
-              <p className="text-white/25 font-montserrat text-xs font-bold tracking-widest">
+              <p className="text-descText2 font-montserrat text-xs font-bold tracking-widest">
                 NOTHING WAITING ON APPROVAL
               </p>
             </div>
@@ -240,20 +324,20 @@ const AdminReviews = () => {
             <div className="relative flex-1 max-w-sm">
               <FaSearch
                 size={12}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-descText"
               />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by author..."
-                className="w-full bg-white/[0.02] border border-white/5 pl-9 pr-3 py-2.5 font-montserrat text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40"
+                className="w-full bg-white/2 border border-borderColor pl-9 pr-3 py-2.5 font-montserrat text-xs text-white placeholder:text-descText focus:outline-none focus:border-floesky/40"
               />
             </div>
 
             <select
               value={ratingFilter}
               onChange={(e) => setRatingFilter(e.target.value)}
-              className="bg-white/[0.02] border border-white/5 px-3 py-2.5 font-montserrat text-xs text-white/70 focus:outline-none focus:border-floesky/40"
+              className="bg-white/2 border border-borderColor px-3 py-2.5 font-montserrat text-xs text-descText focus:outline-none focus:border-floesky/40"
             >
               {ratingFilters.map((f) => (
                 <option key={f} value={f} className="bg-black">
@@ -272,8 +356,8 @@ const AdminReviews = () => {
           </div>
 
           {/* TABLE */}
-          <div className="border border-white/5 bg-white/[0.02] overflow-hidden">
-            <div className="hidden sm:grid grid-cols-[48px_1.3fr_1fr_0.8fr_auto_auto] gap-4 px-5 py-3 border-b border-white/5 font-montserrat text-[11px] tracking-[2px] text-white/25">
+          <div className="border border-borderColor bg-white/2 overflow-hidden">
+            <div className="hidden sm:grid grid-cols-[48px_1.3fr_1fr_0.8fr_auto_auto] gap-4 px-5 py-3 border-b border-borderColor font-montserrat text-[11px] tracking-[2px] text-descText">
               <span></span>
               <span>REVIEW</span>
               <span>DESIGN</span>
@@ -298,11 +382,11 @@ const AdminReviews = () => {
                         <span className="font-montserrat text-sm font-bold text-white truncate">
                           {review.author}
                         </span>
-                        <span className="font-montserrat text-[11px] text-white/25 truncate hidden sm:inline">
+                        <span className="font-montserrat text-[11px] text-descText truncate hidden sm:inline">
                           {review.role}
                         </span>
                       </div>
-                      <p className="font-montserrat text-xs text-white/30 truncate max-w-sm">
+                      <p className="font-montserrat text-xs text-descText2 truncate max-w-sm">
                         {review.text}
                       </p>
                     </div>
@@ -319,7 +403,7 @@ const AdminReviews = () => {
                           className={
                             i < review.rating
                               ? "text-floesky"
-                              : "text-white/10"
+                              : "text-descText2"
                           }
                         />
                       ))}
@@ -330,7 +414,7 @@ const AdminReviews = () => {
                       className={`hidden sm:inline-flex items-center justify-center w-fit px-2.5 py-1 text-[10px] font-montserrat font-bold tracking-wider border transition ${
                         review.featured
                           ? "border-floesky bg-floesky/10 text-floesky"
-                          : "border-white/10 text-white/25 hover:border-white/25"
+                          : "border-borderColor text-descText2 hover:border-floesky hover:text-floesky"
                       }`}
                     >
                       {review.featured ? "FEATURED" : "REGULAR"}
