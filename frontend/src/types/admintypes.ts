@@ -13,3 +13,12 @@ export type HighlightFormValues = {
   mediaUrl: string;
   thumbnail?: string;
 };
+
+export type ReviewFormValues = {
+  author: string;
+  role: string;
+  design: string;
+  rating: number;
+  text: string;
+  featured: boolean;
+};

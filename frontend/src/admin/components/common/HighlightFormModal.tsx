@@ -227,7 +227,7 @@ const HighlightFormModal = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-3 sm:p-4"
         >
           <motion.form
             initial={{
@@ -248,11 +248,11 @@ const HighlightFormModal = ({
             transition={{ duration: 0.25 }}
             onClick={(e) => e.stopPropagation()}
             onSubmit={handleSubmit}
-            className="w-full max-w-lg max-h-[90vh] bg-black border border-white/10 flex flex-col"
+            className="my-auto flex w-full max-w-lg max-h-[90vh] flex-col border border-white/10 bg-black"
           >
             {/* HEADER */}
 
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+            <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6">
               <h2 className="font-montserrat text-sm font-bold tracking-[2px] text-white">
                 {isEditing ? "EDIT HIGHLIGHT" : "ADD HIGHLIGHT"}
               </h2>
@@ -410,13 +410,13 @@ const HighlightFormModal = ({
                     }}
                     onDragLeave={() => setIsMediaDragging(false)}
                     onDrop={handleMediaDrop}
-                    className={`w-full aspect-video border border-borderColor border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition ${
+                    className={`w-full aspect-video rounded-sm border border-borderColor border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition ${
                       isMediaDragging
                         ? "border-floesky bg-floesky/5"
                         : "border-borderColor bg-white/2 hover:border-floesky"
                     }`}
                   >
-                    <div className="w-10 h-10 flex items-center justify-center bg-white/5 text-descText">
+                    <div className="w-10 h-10 flex items-center rounded-full justify-center bg-white/5 text-descText">
                       {form.mediaType === "image" ? (
                         <FaImage size={17} />
                       ) : (
@@ -492,13 +492,13 @@ const HighlightFormModal = ({
                       }}
                       onDragLeave={() => setIsThumbnailDragging(false)}
                       onDrop={handleThumbnailDrop}
-                      className={`w-full aspect-video border border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition ${
+                      className={`w-full aspect-video rounded-sm border border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition ${
                         isThumbnailDragging
                           ? "border-floesky bg-floesky/5"
                           : "border-white/10 bg-white/2 hover:border-floesky"
                       }`}
                     >
-                      <div className="w-10 h-10 flex items-center justify-center bg-white/5 text-descText">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 text-descText">
                         <FaImage size={17} />
                       </div>
 
@@ -519,7 +519,7 @@ const HighlightFormModal = ({
 
             {/* FOOTER */}
 
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5">
+            <div className="flex items-center justify-end gap-1.5 border-t border-white/5 px-4 py-4 sm:gap-3 sm:px-6">
               <button
                 type="button"
                 onClick={onClose}

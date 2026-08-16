@@ -115,7 +115,7 @@ const ProductFormModal = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-3 backdrop-blur-xs sm:p-4"
         >
           <motion.form
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -124,9 +124,9 @@ const ProductFormModal = ({
             transition={{ duration: 0.25 }}
             onClick={(e) => e.stopPropagation()}
             onSubmit={handleSubmit}
-            className="relative w-full max-w-lg my-auto bg-black border border-white/10 flex flex-col"
+            className="relative my-auto flex w-full max-w-lg flex-col border border-borderColor bg-black"
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+            <div className="flex items-center justify-between border-b border-borderColor px-4 py-4 sm:px-6">
               <h2 className="font-montserrat text-sm font-bold tracking-[2px] text-white">
                 {isEditing ? "EDIT PRODUCT" : "ADD PRODUCT"}
               </h2>
@@ -134,15 +134,15 @@ const ProductFormModal = ({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white transition"
+                className="w-8 h-8 flex items-center justify-center text-descText hover:text-white transition"
               >
                 <FaTimes size={14} />
               </button>
             </div>
 
-            <div className="custom-scroll flex flex-col gap-4 px-6 py-5 max-h-[70vh] overflow-y-auto">
+            <div className="custom-scroll flex max-h-[70vh] flex-col gap-4 overflow-y-auto px-4 py-5 sm:px-6">
               <div className="flex flex-col gap-1.5">
-                <label className="font-montserrat text-[11px] tracking-wider text-white/40">
+                <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   TITLE
                 </label>
                 <input
@@ -152,12 +152,12 @@ const ProductFormModal = ({
                     setForm((f) => ({ ...f, title: e.target.value }))
                   }
                   placeholder="e.g. Night Lotus"
-                  className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40"
+                  className="bg-white/2 border border-borderColor px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-descText2 focus:outline-none focus:border-floesky/40"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-montserrat text-[11px] tracking-wider text-white/40">
+                <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   CATEGORY
                 </label>
                 <select
@@ -165,7 +165,7 @@ const ProductFormModal = ({
                   onChange={(e) =>
                     setForm((f) => ({ ...f, category: e.target.value }))
                   }
-                  className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white/80 focus:outline-none focus:border-floesky/40"
+                  className="bg-white/2 border border-borderColor px-3 py-2.5 font-montserrat text-sm text-white focus:outline-none focus:border-floesky/40"
                 >
                   {categories.map((c) => (
                     <option key={c} value={c} className="bg-black">
@@ -176,7 +176,7 @@ const ProductFormModal = ({
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-montserrat text-[11px] tracking-wider text-white/40">
+                <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   DESCRIPTION
                 </label>
                 <textarea
@@ -186,12 +186,12 @@ const ProductFormModal = ({
                   }
                   rows={4}
                   placeholder="Short product description..."
-                  className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40 resize-none"
+                  className="bg-white/2 border border-borderColor px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-descText2 focus:outline-none focus:border-floesky/40 resize-none"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-montserrat text-[11px] tracking-wider text-white/40">
+                <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   PRODUCT IMAGE
                 </label>
 
@@ -204,7 +204,7 @@ const ProductFormModal = ({
                 />
 
                 {form.image ? (
-                  <div className="relative w-full aspect-video rounded-sm overflow-hidden bg-white/5 border border-white/5 group">
+                  <div className="relative w-full aspect-video rounded-sm overflow-hidden bg-white/5 border border-borderColor group">
                     <img
                       src={form.image}
                       alt="Preview"
@@ -245,16 +245,16 @@ const ProductFormModal = ({
                     className={`w-full aspect-video rounded-sm border border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition ${
                       isDragging
                         ? "border-floesky bg-floesky/5"
-                        : "border-white/10 bg-white/[0.02] hover:border-white/25"
+                        : "border-borderColor bg-white/2 hover:border-floesky"
                     }`}
                   >
-                    <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-white/30">
+                    <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-descText">
                       <FaImage size={16} />
                     </div>
-                    <span className="font-montserrat text-xs text-white/50">
+                    <span className="font-montserrat text-xs text-descText">
                       Click to upload or drag and drop
                     </span>
-                    <span className="font-montserrat text-[10px] tracking-wider text-white/20">
+                    <span className="font-montserrat text-[10px] tracking-wider text-descText2">
                       PNG, JPG UP TO 5MB
                     </span>
                   </div>
@@ -262,7 +262,7 @@ const ProductFormModal = ({
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-montserrat text-[11px] tracking-wider text-white/40">
+                <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   AVAILABLE SIZES
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ const ProductFormModal = ({
                         className={`px-3 py-1.5 text-xs font-montserrat border transition ${
                           active
                             ? "border-floesky bg-floesky text-black font-bold"
-                            : "border-white/10 text-white/40 hover:border-white/30"
+                            : "border-borderColor text-descText hover:border-white/30"
                         }`}
                       >
                         {size}
@@ -292,11 +292,11 @@ const ProductFormModal = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5">
+            <div className="flex items-center justify-end gap-1.5 border-t border-white/5 px-4 py-4 sm:gap-3 sm:px-6">
               <button
                 type="button"
                 onClick={onClose}
-                className="font-montserrat text-xs tracking-wider text-white/40 hover:text-white px-4 py-2.5 transition"
+                className="font-montserrat text-xs tracking-wider text-descText hover:text-white px-4 py-2.5 transition"
               >
                 CANCEL
               </button>

@@ -1,5 +1,5 @@
-import type { ProductFormValues, HighlightFormValues } from "./admintypes";
-import type { Project, Highlight } from "./types";
+import type { ProductFormValues, HighlightFormValues, ReviewFormValues } from "./admintypes";
+import type { Project, Highlight, Review } from "./types";
 
 export type ProductFormModalProps = {
   isOpen: boolean;
@@ -25,9 +25,17 @@ export type ImagePreviewModalProps = {
   onClose: () => void;
 };
 
-export interface HighlightFormModalProps {
+export type HighlightFormModalProps = {
   isOpen: boolean;
   editingHighlight: Highlight | null;
   onClose: () => void;
   onSubmit: (values: HighlightFormValues) => void;
 }
+
+export type ReviewFormModalProps = {
+  isOpen: boolean;
+  editingReview: Review | null;
+  designOptions: string[];
+  onClose: () => void;
+  onSubmit: (values: ReviewFormValues) => void;
+};

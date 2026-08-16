@@ -1,50 +1,9 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { FaStar } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaStar, FaRegStar, FaTimes } from "react-icons/fa";
 import type { Review } from "../../types/types";
 import StarRating from "../common/StarRating";
-import ReviewModal from "../common/ReviewModal";
-
-const reviews: Review[] = [
-  {
-    id: 1,
-    featured: true,
-    rating: 5,
-    text: "First time I wore The Vortex, I didn't want to take it off. The compression is perfect for grappling — no rolling up, no restricting movement. This is exactly what BJJ gear should feel like.",
-    design: "THE VORTEX",
-    author: "Coach Ronnie DC",
-    role: "BJJ Purple Belt / Coach",
-    initial: "C",
-  },
-  {
-    id: 2,
-    featured: true,
-    rating: 5,
-    text: "Wore this at a regional tournament. Multiple opponents noticed the design mid-match. Premium quality, premium feel. Floe Combat is the real deal.",
-    design: "THE VORTEX",
-    author: "Mark Santos",
-    role: "BJJ Blue Belt / MMA Fighter",
-    initial: "M",
-  },
-  {
-    id: 3,
-    rating: 5,
-    text: "Bro, this is legit. I've been in BJJ for 4 years and worn a lot of brands — Floe Combat hits different. The design is unique, the quality is there, and you can feel the passion behind it.",
-    design: "THE VORTEX",
-    author: "Jayson Reyes",
-    role: "BJJ Blue Belt",
-    initial: "J",
-  },
-  {
-    id: 4,
-    rating: 4,
-    text: "Great design and very comfortable. The custom commission process was smooth — they really listened to what I wanted. Would definitely order again.",
-    design: "NIGHT LOTUS",
-    author: "Carlo Manalo",
-    role: "No-Gi Practitioner",
-    initial: "C",
-  },
-];
+import { useReviewsStore } from "../../data/reviewsStore";
 
 const filters = ["ALL", "5", "4", "3", "2", "1"];
 
@@ -53,6 +12,7 @@ const productOptions = ["THE VORTEX", "NIGHT LOTUS"];
 const Reviews = () => {
   const [filter, setFilter] = useState("ALL");
   const [isOpen, setIsOpen] = useState(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
   const [form, setForm] = useState({
     rating: 5,
@@ -62,22 +22,35 @@ const Reviews = () => {
     design: "THE VORTEX",
   });
 
-  const [reviewList, setReviewList] = useState<Review[]>(reviews);
+  const [reviewList, setReviewList] = useReviewsStore();
+
+  // Only approved reviews are ever shown publicly — anything pending sits
+  // in the admin queue until approved.
+  const approvedReviews = reviewList.filter((r) => r.status === "approved");
 
   const filtered =
     filter === "ALL"
-      ? reviewList
-      : reviewList.filter((r) => r.rating === Number(filter));
+      ? approvedReviews
+      : approvedReviews.filter((r) => r.rating === Number(filter));
+
+  // Featured reviews surface first, everything else keeps its original order.
+  const sortedFiltered = [...filtered].sort(
+    (a, b) => Number(b.featured) - Number(a.featured)
+  );
 
   const average =
-    reviewList.reduce((sum, r) => sum + r.rating, 0) / reviewList.length;
+    approvedReviews.length > 0
+      ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) /
+        approvedReviews.length
+      : 0;
 
   const handleSubmit = () => {
     if (!form.text || !form.author || !form.design) return;
 
     const newReview: Review = {
-      id: reviewList.length + 1,
+      id: Date.now(),
       featured: false,
+      status: "pending",
       rating: form.rating,
       text: form.text,
       design: form.design,
@@ -86,7 +59,7 @@ const Reviews = () => {
       initial: form.author.charAt(0).toUpperCase(),
     };
 
-    setReviewList([newReview, ...reviewList]);
+    setReviewList((prev) => [newReview, ...prev]);
     setIsOpen(false);
 
     setForm({
@@ -96,11 +69,15 @@ const Reviews = () => {
       role: "",
       design: "THE VORTEX",
     });
+
+    setJustSubmitted(true);
+    setTimeout(() => setJustSubmitted(false), 5000);
   };
 
   return (
     <main className="min-h-screen bg-black">
       <div className="min-h-screen flex flex-col items-center pt-20 sm:pt-24 px-6 sm:px-10 text-white border border-borderColor pb-16 sm:pb-20">
+
         <div className="flex flex-col sm:flex-row justify-between items-start max-w-7xl w-full py-10 sm:py-16 lg:py-20 gap-6">
           <div className="flex flex-col gap-2">
             <motion.p className="text-floesky font-montserrat text-xs font-bold tracking-widest">
@@ -123,21 +100,35 @@ const Reviews = () => {
             </div>
 
             <span className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
-              {reviewList.length} REVIEWS
+              {approvedReviews.length} REVIEWS
             </span>
           </motion.div>
         </div>
 
-        <div className="w-full max-w-7xl flex justify-end pb-4">
+        <div className="w-full max-w-7xl flex flex-col items-end gap-2 pb-4">
           <button
             onClick={() => setIsOpen(true)}
             className="border border-floesky text-floesky px-4 py-2 text-xs font-bold tracking-widest hover:bg-floesky/10 transition"
           >
             SUBMIT REVIEW
           </button>
+
+          <AnimatePresence>
+            {justSubmitted && (
+              <motion.p
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="text-floesky font-montserrat text-xs"
+              >
+                Thanks! Your review has been submitted and is awaiting
+                approval.
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
 
-        <div className="flex gap-2 sm:gap-4 pb-8 max-w-7xl w-full border-y border-borderColor py-6 sm:py-8 flex-wrap">
+        <div className="flex gap-2 sm:gap-4 pb-8 max-w-7xl w-full border-t border-borderColor py-6 sm:py-8 flex-wrap">
           {filters.map((f) => (
             <button
               key={f}
@@ -154,11 +145,22 @@ const Reviews = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 max-w-7xl w-full border-b border-borderColor">
-          {filtered.map((review) => (
+          {sortedFiltered.map((review) => (
             <motion.div
               key={review.id}
-              className="flex flex-col gap-3 p-5 sm:p-8 border-l border-t border-borderColor"
+              className={`relative flex flex-col gap-3 p-5 sm:p-8 border-l border-t transition ${
+                review.featured
+                  ? "border-floesky/40 bg-floesky/5"
+                  : "border-borderColor"
+              }`}
             >
+              {review.featured && (
+                <span className="absolute top-3 right-3 sm:top-5 sm:right-5 flex items-center gap-1 bg-floesky text-black text-[10px] font-montserrat font-bold px-2 py-1 tracking-widest">
+                  <FaStar size={9} />
+                  FEATURED
+                </span>
+              )}
+
               <StarRating rating={review.rating} />
 
               <p className="text-desctText text-sm font-montserrat sm:text-base">
@@ -188,14 +190,95 @@ const Reviews = () => {
         </div>
       </div>
 
-      <ReviewModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        form={form}
-        setForm={setForm}
-        productOptions={productOptions}
-        onSubmit={handleSubmit}
-      />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          >
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg bg-black border border-borderColor p-6 flex flex-col gap-4"
+            >
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-3 right-3 text-white hover:text-floesky"
+              >
+                <FaTimes />
+              </button>
+
+              <h2 className="text-white font-archivo text-2xl font-bold">
+                Submit Review
+              </h2>
+
+              <input
+                placeholder="Your Name"
+                value={form.author}
+                onChange={(e) => setForm({ ...form, author: e.target.value })}
+                className="bg-transparent border border-borderColor p-2 text-white text-sm"
+              />
+
+              <input
+                placeholder="Your Role"
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                className="bg-transparent border border-borderColor p-2 text-white text-sm"
+              />
+
+              <select
+                value={form.design}
+                onChange={(e) => setForm({ ...form, design: e.target.value })}
+                className="bg-black border border-borderColor p-2 text-white text-sm"
+              >
+                {productOptions.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-white/60">Rating:</span>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setForm({ ...form, rating: n })}
+                  >
+                    {n <= form.rating ? (
+                      <FaStar className="text-floesky" />
+                    ) : (
+                      <FaRegStar className="text-floesky" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                placeholder="Your review..."
+                value={form.text}
+                onChange={(e) => setForm({ ...form, text: e.target.value })}
+                className="bg-transparent border border-borderColor p-2 text-white text-sm min-h-30"
+              />
+
+              <button
+                onClick={handleSubmit}
+                className="bg-floesky text-black font-bold py-2 text-sm hover:opacity-90 transition"
+              >
+                SUBMIT
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 };

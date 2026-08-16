@@ -59,7 +59,7 @@ const AdminDashboard = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* STAT CARDS */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.05 * i }}
-              className="flex flex-col gap-4 p-5 border border-borderColor bg-white/2"
+              className="flex flex-col gap-4 border border-borderColor bg-white/2 p-4 sm:p-5"
             >
               <div className="flex items-center justify-between">
                 <span className="font-montserrat text-[11px] tracking-[2px] text-descText2">
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
           transition={{ duration: 0.4, delay: 0.2 }}
           className="lg:col-span-3 border border-borderColor bg-white/2 flex flex-col"
         >
-          <div className="flex items-center justify-between px-5 py-4 border-b border-borderColor">
+          <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-5 border-b border-borderColor">
             <h2 className="font-montserrat text-xs font-bold tracking-[2px] text-white">
               RECENT REVIEWS
             </h2>
@@ -107,14 +107,14 @@ const AdminDashboard = () => {
             {recentReviews.map((review) => (
               <div
                 key={review.author}
-                className="flex items-start gap-3 px-5 py-4"
+                className="flex items-start gap-3 px-4 py-4 sm:px-5"
               >
                 <div className="w-8 h-8 shrink-0 rounded-full bg-floesky/10 text-floesky flex items-center justify-center font-archivo text-xs">
                   {review.author.charAt(0)}
                 </div>
 
                 <div className="flex flex-col gap-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     <span className="font-montserrat text-xs font-bold text-white">
                       {review.author}
                     </span>
@@ -128,7 +128,7 @@ const AdminDashboard = () => {
                   </p>
                 </div>
 
-                <div className="ml-auto flex items-center gap-0.5 shrink-0 pl-2">
+                <div className="ml-auto hidden items-center gap-0.5 shrink-0 pl-2 min-[420px]:flex">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <FaStar
                       key={i}
@@ -151,13 +151,13 @@ const AdminDashboard = () => {
           transition={{ duration: 0.4, delay: 0.25 }}
           className="lg:col-span-2 border border-borderColor bg-white/2 flex flex-col"
         >
-          <div className="px-5 py-4 border-b border-borderColor">
+          <div className="px-4 py-4 sm:px-5 border-b border-borderColor">
             <h2 className="font-montserrat text-xs font-bold tracking-[2px] text-white">
               CONTENT OVERVIEW
             </h2>
           </div>
 
-          <div className="flex flex-col gap-4 px-5 py-5">
+          <div className="flex flex-col gap-4 px-4 py-5 sm:px-5">
             {contentBreakdown.map((item) => {
               const Icon = item.icon;
               const pct = (item.count / maxCount) * 100;

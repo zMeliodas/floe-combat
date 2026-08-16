@@ -19,6 +19,7 @@ export interface Project {
 export interface Review {
   id: number;
   featured?: boolean;
+  status: "pending" | "approved";
   rating: number;
   text: string;
   design: string;

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { FaBars } from "react-icons/fa";
 import Sidebar from "./components/Sidebar";
-import ThemeToggle from "../Components/Navbar/ThemeToggle";
 
 const pageMeta: Record<string, { title: string; subtitle: string }> = {
   "/admin/dashboard": {
@@ -28,24 +29,36 @@ const pageMeta: Record<string, { title: string; subtitle: string }> = {
 const AdminPanel = () => {
   const { pathname } = useLocation();
   const meta = pageMeta[pathname] ?? pageMeta["/admin/dashboard"];
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden">
-      <Sidebar />
+    <div className="flex min-h-dvh bg-black lg:h-screen lg:overflow-hidden">
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <div className="h-18 border-b border-white/5 flex items-center justify-between px-6 shrink-0">
-          <div>
+      <div className="flex min-w-0 flex-1 flex-col lg:overflow-hidden">
+        <header className="flex min-h-18 items-center gap-3 border-b border-white/5 px-4 sm:px-6 lg:shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(true)}
+            aria-label="Open navigation"
+            className="flex h-10 w-10 shrink-0 items-center justify-center text-descText2 transition hover:bg-white/5 hover:text-floesky lg:hidden"
+          >
+            <FaBars size={18} />
+          </button>
+          <div className="min-w-0">
             <h1 className="font-montserrat text-xl font-bold tracking-[2px] text-white">
               {meta.title}
             </h1>
-            <p className="font-montserrat text-[12px] tracking-wider text-descText2 mt-0.5">
+            <p className="mt-0.5 truncate font-montserrat text-[11px] tracking-wider text-descText2 sm:text-[12px]">
               {meta.subtitle}
             </p>
           </div>
-        </div>
+        </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 p-4 sm:p-6 lg:overflow-y-auto">
           <Outlet />
         </main>
       </div>

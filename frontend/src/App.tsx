@@ -16,7 +16,6 @@ import Reviews from "./Components/Pages/Reviews";
 import Footer from "./Components/Sections/Footer";
 import AdminPanel from "./admin/AdminPanel";
 import AdminHighlights from "./admin/components/Pages/AdminHighlights";
-import AdminOrderSteps from "./admin/components/Pages/AdminOrderSteps";
 import AdminProducts from "./admin/components/Pages/AdminProducts";
 import AdminReviews from "./admin/components/Pages/AdminReviews";
 import AdminDashboard from "./admin/components/Pages/AdminDashboard";
@@ -49,7 +48,6 @@ function AppContent() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="highlights" element={<AdminHighlights />} />
           <Route path="reviews" element={<AdminReviews />} />
-          <Route path="order-steps" element={<AdminOrderSteps />} />
         </Route>
 
         <Route path="/" element={<LandingPage />} />

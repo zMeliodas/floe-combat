@@ -16,7 +16,7 @@ const DeleteConfirmModal = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-4"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -24,7 +24,7 @@ const DeleteConfirmModal = ({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm bg-black border border-white/10 p-6 flex flex-col gap-4"
+            className="flex w-full max-w-sm flex-col gap-4 border border-white/10 bg-black p-4 sm:p-6"
           >
             <h2 className="font-montserrat text-sm font-bold tracking-[2px] text-white">
               {title}
@@ -35,7 +35,7 @@ const DeleteConfirmModal = ({
               undone.
             </p>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex items-center justify-end gap-1.5 pt-2 sm:gap-3">
               <button
                 onClick={onClose}
                 className="font-montserrat text-xs tracking-wider text-white/40 hover:text-white px-4 py-2.5 transition"
