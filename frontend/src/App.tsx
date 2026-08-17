@@ -19,6 +19,7 @@ import AdminHighlights from "./admin/components/Pages/AdminHighlights";
 import AdminProducts from "./admin/components/Pages/AdminProducts";
 import AdminReviews from "./admin/components/Pages/AdminReviews";
 import AdminDashboard from "./admin/components/Pages/AdminDashboard";
+import NotFound from "./Components/Pages/NotFound";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,6 +56,8 @@ function AppContent() {
         <Route path="/highlights" element={<Highlights />} />
         <Route path="/order" element={<Order />} />
         <Route path="/reviews" element={<Reviews />} />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {!isAdminPage && <Footer />}
