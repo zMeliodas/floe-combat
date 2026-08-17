@@ -1,16 +1,17 @@
 import { Router } from "express";
+import { uploadImage } from "../middleware/upload.js";
+import {
+  createProductController,
+  deleteProductController,
+  getProductsController,
+  updateProductController,
+} from "../controller/product.controller.js";
 
 const router = Router();
 
-router.get("/", (_req, res) => {
-  res.json([]);
-});
-
-router.post("/", (req, res) => {
-  res.status(201).json({
-    message: "Product created",
-    product: req.body
-  });
-});
+router.get("/", getProductsController);
+router.post("/", uploadImage.single("image"), createProductController);
+router.patch("/:id", uploadImage.single("image"), updateProductController);
+router.delete("/:id", deleteProductController);
 
 export default router;
