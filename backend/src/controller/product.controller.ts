@@ -11,6 +11,7 @@ import {
   updateProduct,
 } from "../service/product.service.js";
 import { parseSizes } from "../utils/helper.js";
+import { createAdminActivity } from "../service/adminActivity.service.js";
 
 const getProductsController = async (_req: Request, res: Response) => {
   try {
@@ -80,6 +81,8 @@ const createProductController = async (req: Request, res: Response) => {
       imagePublicId: uploadedImage.publicId,
       sizes: parsedSizes,
     });
+
+    await createAdminActivity(req.admin!.adminId, "CREATE_PRODUCT", product.id);
 
     res.status(201).json({
       success: true,

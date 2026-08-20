@@ -10,11 +10,11 @@ const productColumns = `
   title,
   category,
   description,
-  image_url AS "imageUrl",
-  image_public_id AS "imagePublicId",
+  image_url,
+  image_public_id,
   sizes,
-  created_at AS "createdAt",
-  updated_at AS "updatedAt"
+  created_at,
+  updated_at
 `;
 
 const getAllProducts = async (): Promise<Product[]> => {

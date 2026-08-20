@@ -12,3 +12,17 @@ CREATE TABLE products (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE admins (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE admin_activity_logs (
+  id SERIAL PRIMARY KEY,
+  admin_id INTEGER NOT NULL REFERENCES admins(id),
+  action VARCHAR(50) NOT NULL,
+  product_id INTEGER,
+  created_at TIMESTAMP DEFAULT NOW()
+);

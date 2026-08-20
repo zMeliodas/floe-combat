@@ -1,0 +1,85 @@
+import type { Request, Response } from "express";
+import { verify } from "@node-rs/argon2";
+import { getAdminByEmail } from "../service/admin.service.js";
+import generateToken from "../utils/jwtTokenGenerator.js";
+import { getAdminActivities } from "../service/adminActivity.service.js";
+
+const loginAdminController = async (req: Request, res: Response) => {
+  const { email, password } = req.body as Record<string, unknown>;
+
+  if (
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    !email.trim() ||
+    !password
+  ) {
+    res.status(400).json({
+      success: false,
+      message: "Email and password are required.",
+    });
+
+    return;
+  }
+
+  try {
+    const admin = await getAdminByEmail(email.trim());
+
+    if (!admin) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
+      return;
+    }
+
+    const isPasswordValid = await verify(admin.password_hash, password);
+
+    if (!isPasswordValid) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
+      return;
+    }
+
+    const token = generateToken(admin.id, admin.email);
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful.",
+      result: {
+        id: admin.id,
+        email: admin.email,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Could not login.",
+    });
+  }
+};
+
+const getAdminActivitiesController = async (_req: Request, res: Response) => {
+  try {
+    const activities = await getAdminActivities();
+
+    res.status(200).json({
+      success: true,
+      message: "Admin activities fetched successfully.",
+      result: activities,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Could not fetch admin activities.",
+    });
+  }
+};
+
+export { loginAdminController, getAdminActivitiesController };
