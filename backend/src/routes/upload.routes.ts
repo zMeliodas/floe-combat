@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadImage } from "../middleware/upload.js";
+import { uploadImage } from "../middleware/upload.middleware.js";
 import { uploadProductImage } from "../service/cloudinary.service.js";
 
 const router = Router();

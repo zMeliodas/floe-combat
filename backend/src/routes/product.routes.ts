@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadImage } from "../middleware/upload.js";
+import { uploadImage } from "../middleware/upload.middleware.js";
 import {
   createProductController,
   deleteProductController,
@@ -11,18 +11,21 @@ import authMiddleware from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/", getProductsController);
+
 router.post(
   "/",
   authMiddleware,
   uploadImage.single("image"),
   createProductController,
 );
+
 router.patch(
   "/:id",
   authMiddleware,
   uploadImage.single("image"),
   updateProductController,
 );
+
 router.delete("/:id", authMiddleware, deleteProductController);
 
 export default router;

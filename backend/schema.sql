@@ -26,3 +26,16 @@ CREATE TABLE admin_activity_logs (
   product_id INTEGER,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE highlights (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    athlete VARCHAR(255) NOT NULL,
+    media_type VARCHAR(10) NOT NULL CHECK (media_type IN ('video', 'image')),
+    media_url TEXT NOT NULL,
+    media_public_id TEXT NOT NULL,
+    thumbnail_url TEXT,
+    thumbnail_public_id TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -6,4 +6,4 @@ export type Product = {
   imageUrl: string;
   imagePublicId: string;
   sizes: string[];
-}
+};
