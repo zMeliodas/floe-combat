@@ -3,7 +3,6 @@ import express from "express";
 import productRoutes from "./routes/product.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
-import pool from "./db/pool.js";
 import adminActivityRoutes from "./routes/admin.routes.js";
 import highlightRoutes from "./routes/highlight.routes.js";
 import { uploadErrorHandler } from "./middleware/upload.error.middleware.js";
