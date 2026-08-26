@@ -20,6 +20,7 @@ import AdminProducts from "./admin/components/Pages/AdminProducts";
 import AdminReviews from "./admin/components/Pages/AdminReviews";
 import AdminDashboard from "./admin/components/Pages/AdminDashboard";
 import NotFound from "./Components/Pages/NotFound";
+import Login from "./Components/Pages/Login";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -34,7 +35,8 @@ function ScrollToTop() {
 function AppContent() {
   const location = useLocation();
 
-  const isAdminPage = location.pathname.startsWith("/admin");
+  const isAdminPage =
+    location.pathname.startsWith("/admin") || location.pathname === "/login";
 
   return (
     <>
@@ -43,6 +45,8 @@ function AppContent() {
       {!isAdminPage && <Navbar />}
 
       <Routes>
+        <Route path="/login" element={<Login />} />
+
         <Route path="/admin" element={<AdminPanel />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -50,13 +54,11 @@ function AppContent() {
           <Route path="highlights" element={<AdminHighlights />} />
           <Route path="reviews" element={<AdminReviews />} />
         </Route>
-
         <Route path="/" element={<LandingPage />} />
         <Route path="/products" element={<Products />} />
         <Route path="/highlights" element={<Highlights />} />
         <Route path="/order" element={<Order />} />
         <Route path="/reviews" element={<Reviews />} />
-
         <Route path="*" element={<NotFound />} />
       </Routes>
 

@@ -39,3 +39,59 @@ CREATE TABLE highlights (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE reviews (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    author VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+
+    product_id INTEGER
+        REFERENCES products(id)
+        ON DELETE SET NULL,
+
+    product_name VARCHAR(255) NOT NULL,
+
+    rating INTEGER NOT NULL
+        CHECK (rating BETWEEN 1 AND 5),
+
+    review_text TEXT NOT NULL,
+
+    status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'approved', 'rejected')),
+
+    featured BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE reviews (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    author VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+
+    product_id INTEGER
+        REFERENCES products(id)
+        ON DELETE SET NULL,
+
+    product_name VARCHAR(255) NOT NULL,
+
+    rating INTEGER NOT NULL
+        CHECK (rating BETWEEN 1 AND 5),
+
+    review_text TEXT NOT NULL,
+
+    status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'approved', 'rejected')),
+
+    featured BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (
+      featured = false OR status = 'approved'
+    )
+);
