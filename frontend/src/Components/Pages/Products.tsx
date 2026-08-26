@@ -2,36 +2,38 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import FilterButton from "../common/FilterButton";
-import nightlotus from "../../assets/images/products/night-lotus.jpg";
-import thevortex from "../../assets/images/products/the-vortex.jpg";
-import type { Project } from "../../types/types";
+import type { Product } from "../../types/types";
+import { getProducts } from "../../services/products.service";
 
 const categories = ["ALL", "SHORT SLEEVE", "LONG SLEEVE", "SPATS", "FULL SET"];
 
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "Night Lotus",
-    category: "SHORT SLEEVE",
-    description:
-      "In the heat of the exchange, let the chaos fade. The Night Lotus set is crafted for the fighters who finds strength in composure and power in the quiet moments of the roll. Featuring an ergonomic compression fit and extended torso length to prevent ride up during live training.",
-    image: nightlotus,
-    sizes: ["XS", "S", "M", "L", "XL"],
-  },
-  {
-    id: 2,
-    title: "The Vortex",
-    category: "SHORT SLEEVE",
-    description:
-      "In the chaos of the roll, find your focus. The Vortex rashguard is designed for practitioners who prioritize movement and technical precision.",
-    image: thevortex,
-    sizes: ["XS", "S", "M", "L", "XL"],
-  },
-];
-
 const Products = () => {
   const [active, setActive] = useState("ALL");
-  const [selected, setSelected] = useState<Project | null>(null);
+  const [selected, setSelected] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        setFetchError("");
+
+        const data = await getProducts();
+
+        setProducts(data);
+      } catch (error) {
+        setFetchError(
+          error instanceof Error ? error.message : "Could not fetch products.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = selected ? "hidden" : "";
@@ -41,7 +43,9 @@ const Products = () => {
   }, [selected]);
 
   const filtered =
-    active === "ALL" ? projects : projects.filter((p) => p.category === active);
+    active === "ALL"
+      ? products
+      : products.filter((product) => product.category === active);
 
   return (
     <main className="min-h-screen bg-black">
@@ -90,7 +94,7 @@ const Products = () => {
                 className="group relative aspect-4/5 overflow-hidden cursor-pointer"
               >
                 <img
-                  src={project.image}
+                  src={project.image_url}
                   alt={project.title}
                   className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                 />
@@ -110,7 +114,6 @@ const Products = () => {
                     {project.description}
                   </p>
 
-                  {/* SIZES (CARD) */}
                   <div className="flex flex-wrap gap-1 mt-2">
                     {project.sizes.map((size) => (
                       <span
@@ -162,7 +165,7 @@ const Products = () => {
                 </button>
 
                 <img
-                  src={selected.image}
+                  src={selected.image_url}
                   alt={selected.title}
                   className="w-full h-full object-contain"
                 />

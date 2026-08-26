@@ -1,6 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { FaTimes, FaImage, FaCloudUploadAlt, FaTrash } from "react-icons/fa";
+import {
+  FaTimes,
+  FaImage,
+  FaCloudUploadAlt,
+  FaTrash,
+  FaSpinner,
+} from "react-icons/fa";
 import type { ProductFormValues } from "../../../types/admintypes";
 import type { ProductFormModalProps } from "../../../types/adminprops";
 
@@ -8,7 +14,8 @@ const emptyForm: ProductFormValues = {
   title: "",
   category: "",
   description: "",
-  image: "",
+  image_url: "",
+  image: null,
   sizes: [],
 };
 
@@ -19,6 +26,7 @@ const ProductFormModal = ({
   sizeOptions,
   onClose,
   onSubmit,
+  isSubmitting,
 }: ProductFormModalProps) => {
   const [form, setForm] = useState<ProductFormValues>(emptyForm);
   const [isDragging, setIsDragging] = useState(false);
@@ -38,7 +46,8 @@ const ProductFormModal = ({
         title: editingProduct.title,
         category: editingProduct.category,
         description: editingProduct.description,
-        image: editingProduct.image,
+        image_url: editingProduct.image_url,
+        image: null,
         sizes: editingProduct.sizes,
       });
     } else {
@@ -63,7 +72,11 @@ const ProductFormModal = ({
 
     const previewUrl = URL.createObjectURL(file);
     objectUrlRef.current = previewUrl;
-    setForm((f) => ({ ...f, image: previewUrl }));
+    setForm((f) => ({
+      ...f,
+      image_url: previewUrl,
+      image: file,
+    }));
   };
 
   const handleRemoveImage = () => {
@@ -71,7 +84,11 @@ const ProductFormModal = ({
       URL.revokeObjectURL(objectUrlRef.current);
       objectUrlRef.current = null;
     }
-    setForm((f) => ({ ...f, image: "" }));
+    setForm((f) => ({
+      ...f,
+      image_url: editingProduct?.image_url ?? "",
+      image: null,
+    }));
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -90,9 +107,21 @@ const ProductFormModal = ({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (!form.title.trim() || form.sizes.length === 0) return;
+
+    if (isSubmitting) return;
+
+    if (
+      !form.title.trim() ||
+      !form.description.trim() ||
+      form.sizes.length === 0
+    ) {
+      return;
+    }
+
+    if (!isEditing && !form.image) return;
+
     onSubmit(form);
   };
 
@@ -194,10 +223,10 @@ const ProductFormModal = ({
                   className="hidden"
                 />
 
-                {form.image ? (
+                {form.image_url ? (
                   <div className="relative w-full aspect-video rounded-sm overflow-hidden bg-white/5 border border-borderColor group">
                     <img
-                      src={form.image}
+                      src={form.image_url}
                       alt="Preview"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -293,10 +322,26 @@ const ProductFormModal = ({
               </button>
               <button
                 type="submit"
-                disabled={!form.title.trim() || form.sizes.length === 0}
-                className="bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                disabled={
+                  isSubmitting ||
+                  !form.title.trim() ||
+                  !form.description.trim() ||
+                  form.sizes.length === 0 ||
+                  (!isEditing && !form.image)
+                }
+                className="flex items-center justify-center gap-2 bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isEditing ? "SAVE CHANGES" : "ADD PRODUCT"}
+                {isSubmitting && (
+                  <FaSpinner className="animate-spin" size={12} />
+                )}
+
+                {isSubmitting
+                  ? isEditing
+                    ? "SAVING..."
+                    : "ADDING..."
+                  : isEditing
+                    ? "SAVE CHANGES"
+                    : "ADD PRODUCT"}
               </button>
             </div>
           </motion.form>

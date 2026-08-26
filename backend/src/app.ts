@@ -3,6 +3,7 @@ import express from "express";
 import productRoutes from "./routes/product.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import pool from "./db/pool.js";
 import adminActivityRoutes from "./routes/admin.routes.js";
 import highlightRoutes from "./routes/highlight.routes.js";
 import { uploadErrorHandler } from "./middleware/upload.error.middleware.js";
@@ -25,5 +26,23 @@ app.use("/api/products", productRoutes);
 app.use("/api/highlights", highlightRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use(uploadErrorHandler);
+
+app.get("/api/health/database", async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW() AS database_time");
+
+    res.status(200).json({
+      status: "ok",
+      databaseTime: result.rows[0].database_time,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Could not connect to PostgreSQL.",
+    });
+  }
+});
 
 export default app;

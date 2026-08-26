@@ -20,3 +20,9 @@ export type ReviewProps = {
   productOptions: string[];
   onSubmit: () => void;
 };
+
+export type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+};

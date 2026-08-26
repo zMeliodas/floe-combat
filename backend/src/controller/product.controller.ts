@@ -147,7 +147,7 @@ const deleteProductController = async (req: Request, res: Response) => {
     }
 
     try {
-      await deleteProductImage(deletedProduct.imagePublicId);
+      await deleteProductImage(deletedProduct.image_public_id);
     } catch (cloudinaryError) {
       console.error(cloudinaryError);
       res.status(200).json({
@@ -263,7 +263,7 @@ const updateProductController = async (req: Request, res: Response) => {
 
     if (newImage) {
       try {
-        await deleteProductImage(existingProduct.imagePublicId);
+        await deleteProductImage(existingProduct.image_public_id);
       } catch (cloudinaryError) {
         console.error(cloudinaryError);
 

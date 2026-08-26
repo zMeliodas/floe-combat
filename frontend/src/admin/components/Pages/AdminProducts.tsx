@@ -1,67 +1,80 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus, FaPen, FaTrash, FaSearch, FaImage } from "react-icons/fa";
-import nightlotus from "../../../assets/images/products/night-lotus.jpg";
-import thevortex from "../../../assets/images/products/the-vortex.jpg";
 import type { ProductFormValues } from "../../../types/admintypes";
-import type { Project } from "../../../types/types";
+import type { Product } from "../../../types/types";
 import ProductFormModal from "../../components/common/ProductFormModal";
 import DeleteConfirmModal from "../common/DeleteConfirmModal";
 import ImagePreviewModal from "../../components/common/ImagePreviewModal";
-
-// NOTE: UI only for now — everything lives in local state. Once this is
-// wired to a real data source, `products` here should become the single
-// source of truth that Products.tsx (the public page) also reads from.
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../../../services/products.service";
 
 const categories = ["SHORT SLEEVE", "LONG SLEEVE", "SPATS", "FULL SET"];
-const sizeOptions = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"];
-
-const initialProducts: Project[] = [
-  {
-    id: 1,
-    title: "Night Lotus",
-    category: "SHORT SLEEVE",
-    description:
-      "In the heat of the exchange, let the chaos fade. The Night Lotus set is crafted for the fighters who finds strength in composure and power in the quiet moments of the roll.",
-    image: nightlotus,
-    sizes: ["XS", "S", "M", "L", "XL"],
-  },
-  {
-    id: 2,
-    title: "The Vortex",
-    category: "SHORT SLEEVE",
-    description:
-      "In the chaos of the roll, find your focus. The Vortex rashguard is designed for practitioners who prioritize movement and technical precision.",
-    image: thevortex,
-    sizes: ["XS", "S", "M", "L", "XL", "6XL"],
-  },
+const sizeOptions = [
+  "XS",
+  "S",
+  "M",
+  "L",
+  "XL",
+  "2XL",
+  "3XL",
+  "4XL",
+  "5XL",
+  "6XL",
 ];
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState<Project[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Project | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
-  const [previewProduct, setPreviewProduct] = useState<Project | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
 
   const filtered = products.filter((p) => {
-    const matchesSearch = p.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       categoryFilter === "ALL" || p.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+
+        const data = await getProducts();
+
+        setProducts(data);
+      } catch (error) {
+        setError(
+          error instanceof Error ? error.message : "Could not fetch products.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const openAddForm = () => {
     setEditingProduct(null);
     setIsFormOpen(true);
   };
 
-  const openEditForm = (product: Project) => {
+  const openEditForm = (product: Product) => {
     setEditingProduct(product);
     setIsFormOpen(true);
   };
@@ -71,46 +84,73 @@ const AdminProducts = () => {
     setEditingProduct(null);
   };
 
-  const handleFormSubmit = (values: ProductFormValues) => {
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id
-            ? {
-                ...p,
-                title: values.title,
-                category: values.category,
-                description: values.description,
-                image: values.image || p.image,
-                sizes: values.sizes,
-              }
-            : p
-        )
-      );
-    } else {
-      const newProduct: Project = {
-        id: Date.now(),
-        title: values.title,
-        category: values.category,
-        description: values.description,
-        image: values.image,
-        sizes: values.sizes,
-      };
-      setProducts((prev) => [newProduct, ...prev]);
-    }
+  const handleFormSubmit = async (values: ProductFormValues) => {
+    if (isSaving) return;
 
-    closeForm();
+    try {
+      setIsSaving(true);
+      setError("");
+
+      if (editingProduct) {
+        const updatedProduct = await updateProduct(editingProduct.id, {
+          title: values.title,
+          category: values.category,
+          description: values.description,
+          sizes: values.sizes,
+          image: values.image ?? undefined,
+        });
+
+        setProducts((prev) =>
+          prev.map((product) =>
+            product.id === updatedProduct.id ? updatedProduct : product,
+          ),
+        );
+      } else {
+        if (!values.image) return;
+
+        const newProduct = await createProduct({
+          title: values.title,
+          category: values.category,
+          description: values.description,
+          sizes: values.sizes,
+          image: values.image,
+        });
+
+        setProducts((prev) => [newProduct, ...prev]);
+      }
+
+      closeForm();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not save product.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
-    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-    setDeleteTarget(null);
+
+    try {
+      setError("");
+
+      await deleteProduct(deleteTarget.id);
+
+      setProducts((prev) =>
+        prev.filter((product) => product.id !== deleteTarget.id),
+      );
+
+      setDeleteTarget(null);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not delete product.",
+      );
+    }
   };
 
   return (
     <div className="flex flex-col gap-5">
-      {/* TOOLBAR */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <FaSearch
@@ -149,7 +189,6 @@ const AdminProducts = () => {
         </button>
       </div>
 
-      {/* TABLE */}
       <div className="border border-borderColor bg-white/2 overflow-hidden">
         <div className="hidden sm:grid grid-cols-[64px_1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-borderColor font-montserrat text-[11px] tracking-[2px] text-descText">
           <span></span>
@@ -168,14 +207,16 @@ const AdminProducts = () => {
               >
                 <button
                   type="button"
-                  onClick={() => product.image && setPreviewProduct(product)}
-                  disabled={!product.image}
+                  onClick={() =>
+                    product.image_url && setPreviewProduct(product)
+                  }
+                  disabled={!product.image_url}
                   aria-label={`Preview ${product.title} image`}
                   className="w-12 h-12 rounded-sm overflow-hidden bg-white/5 shrink-0 disabled:cursor-default enabled:cursor-zoom-in enabled:hover:ring-2 enabled:hover:ring-floesky/60 transition"
                 >
-                  {product.image ? (
+                  {product.image_url ? (
                     <img
-                      src={product.image}
+                      src={product.image_url}
                       alt={product.title}
                       className="w-full h-full object-cover"
                     />
@@ -249,6 +290,7 @@ const AdminProducts = () => {
         editingProduct={editingProduct}
         categories={categories}
         sizeOptions={sizeOptions}
+        isSubmitting={isSaving}
         onClose={closeForm}
         onSubmit={handleFormSubmit}
       />
@@ -263,7 +305,7 @@ const AdminProducts = () => {
 
       <ImagePreviewModal
         isOpen={previewProduct !== null}
-        imageUrl={previewProduct?.image ?? ""}
+        imageUrl={previewProduct?.image_url ?? ""}
         title={previewProduct?.title}
         onClose={() => setPreviewProduct(null)}
       />

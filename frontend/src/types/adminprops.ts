@@ -1,11 +1,12 @@
 import type { ProductFormValues, HighlightFormValues, ReviewFormValues } from "./admintypes";
-import type { Project, Highlight, Review } from "./types";
+import type { Product, Highlight, Review } from "./types";
 
 export type ProductFormModalProps = {
   isOpen: boolean;
-  editingProduct: Project | null;
+  editingProduct: Product | null;
   categories: string[];
   sizeOptions: string[];
+  isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (values: ProductFormValues) => void;
 };

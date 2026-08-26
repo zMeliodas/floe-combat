@@ -21,6 +21,7 @@ import AdminReviews from "./admin/components/Pages/AdminReviews";
 import AdminDashboard from "./admin/components/Pages/AdminDashboard";
 import NotFound from "./Components/Pages/NotFound";
 import Login from "./Components/Pages/Login";
+import ProtectedRoute from "./admin/components/admin/ProtectedRoute";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -45,15 +46,18 @@ function AppContent() {
       {!isAdminPage && <Navbar />}
 
       <Routes>
-        <Route path="/login" element={<Login />} />
-
-        <Route path="/admin" element={<AdminPanel />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="highlights" element={<AdminHighlights />} />
-          <Route path="reviews" element={<AdminReviews />} />
+        <Route path="/admin/login" element={<Login />} />
+        
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AdminPanel />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="highlights" element={<AdminHighlights />} />
+            <Route path="reviews" element={<AdminReviews />} />
+          </Route>
         </Route>
+
         <Route path="/" element={<LandingPage />} />
         <Route path="/products" element={<Products />} />
         <Route path="/highlights" element={<Highlights />} />

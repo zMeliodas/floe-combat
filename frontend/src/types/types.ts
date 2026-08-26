@@ -7,12 +7,12 @@ export type Highlight = {
   thumbnail?: string;             
 };
 
-export interface Project {
+export interface Product {
   id: number;
   title: string;
   category: string;
   description: string;
-  image: string;
+  image_url: string;
   sizes: string[];
 }
 
@@ -29,3 +29,31 @@ export interface Review {
 }
 
 export type Theme = "light" | "dark";
+
+export type ProductResponse = {
+  success: boolean;
+  message: string;
+  result: Product;
+};
+
+export type ProductsResponse = {
+  success: boolean;
+  message: string;
+  result: Product[];
+};
+
+export type ProductInput = {
+  title: string;
+  category: string;
+  description: string;
+  sizes: string[];
+  image: File;
+};
+
+export type UpdateProductInput = {
+  title: string;
+  category: string;
+  description: string;
+  sizes: string[];
+  image?: File;
+};

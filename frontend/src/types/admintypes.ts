@@ -2,7 +2,8 @@ export type ProductFormValues = {
   title: string;
   category: string;
   description: string;
-  image: string;
+  image_url: string;
+  image: File | null;
   sizes: string[];
 };
 
@@ -21,4 +22,19 @@ export type ReviewFormValues = {
   rating: number;
   text: string;
   featured: boolean;
+};
+
+export type AdminLoginResponse = {
+  success: boolean;
+  message: string;
+  result: {
+    id: number;
+    email: string;
+    token: string;
+  };
+};
+
+export type AdminLoginInput = {
+  email: string;
+  password: string;
 };

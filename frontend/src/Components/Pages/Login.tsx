@@ -1,15 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-// NOTE: this calls POST /api/auth/login on your backend, expecting
-// { email, password } in the body and a session cookie set on success
-// (that's why `credentials: "include"` is required — without it, the
-// browser won't send/accept the httpOnly session cookie). This will 404
-// until the actual login route is built on top of the session middleware
-// (express-session + connect-pg-simple) — the UI is just wired ahead of it.
-
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const API_URL =
+  import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,26 +14,44 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setError("");
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch(`${API_URL}/admin/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.message ?? "Invalid email or password.");
+        setError(data.message ?? "Invalid email or password.");
         return;
       }
 
-      navigate("/admin/dashboard", { replace: true });
+      localStorage.setItem("adminToken", data.result.token);
+
+      localStorage.setItem(
+        "admin",
+        JSON.stringify({
+          id: data.result.id,
+          email: data.result.email,
+        }),
+      );
+
+      navigate("/admin/dashboard", {
+        replace: true,
+      });
     } catch {
       setError("Couldn't reach the server. Is the backend running?");
     } finally {
@@ -57,6 +69,7 @@ const Login = () => {
           <span className="font-archivo text-lg tracking-[3px] text-white">
             FLOE COMBAT
           </span>
+
           <span className="font-montserrat text-[12px] tracking-[3px] text-floesky">
             ADMIN LOGIN
           </span>
@@ -67,11 +80,11 @@ const Login = () => {
             <label className="font-montserrat text-[11px] tracking-wider text-white/40">
               USERNAME
             </label>
+
             <input
-              type="email"
+              type="text"
               required
               autoFocus
-              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="username"
@@ -83,6 +96,7 @@ const Login = () => {
             <label className="font-montserrat text-[11px] tracking-wider text-white/40">
               PASSWORD
             </label>
+
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -93,13 +107,18 @@ const Login = () => {
                 placeholder="••••••••"
                 className="w-full bg-white/2 border border-white/10 px-3 py-2.5 pr-10 font-montserrat text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40"
               />
+
               <button
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
+                onClick={() => setShowPassword((value) => !value)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition"
               >
-                {showPassword ? <FaEyeSlash size={13} /> : <FaEye size={13} />}
+                {showPassword ? (
+                  <FaEyeSlash size={13} />
+                ) : (
+                  <FaEye size={13} />
+                )}
               </button>
             </div>
           </div>

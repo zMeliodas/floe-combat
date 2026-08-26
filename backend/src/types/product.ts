@@ -4,6 +4,6 @@ export type Product = {
   category: string;
   description: string;
   imageUrl: string;
-  imagePublicId: string;
+  image_public_id: string;
   sizes: string[];
 };
