@@ -19,14 +19,6 @@ app.use(
 
 app.use(express.json());
 
-app.use("/api/admin", adminRoutes);
-app.use("/api/admin/activities", adminActivityRoutes);
-app.use("/api/uploads", uploadRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/highlights", highlightRoutes);
-app.use("/api/reviews", reviewRoutes);
-app.use(uploadErrorHandler);
-
 app.get("/api/health/database", async (_req, res) => {
   try {
     const result = await pool.query("SELECT NOW() AS database_time");
@@ -44,5 +36,13 @@ app.get("/api/health/database", async (_req, res) => {
     });
   }
 });
+
+app.use("/api/admin", adminRoutes);
+app.use("/api/admin/activities", adminActivityRoutes);
+app.use("/api/uploads", uploadRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/highlights", highlightRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use(uploadErrorHandler);
 
 export default app;
