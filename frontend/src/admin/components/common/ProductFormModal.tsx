@@ -1,12 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import {
-  FaTimes,
-  FaImage,
-  FaCloudUploadAlt,
-  FaTrash,
-  FaSpinner,
-} from "react-icons/fa";
+import { FaTimes, FaCloudUploadAlt, FaTrash, FaSpinner } from "react-icons/fa";
 import type { ProductFormValues } from "../../../types/admintypes";
 import type { ProductFormModalProps } from "../../../types/adminprops";
 import type { ProductImage } from "../../../types/types";
@@ -19,6 +13,8 @@ const emptyForm: ProductFormValues = {
   images: [],
   deletedImageIds: [],
 };
+
+const MAX_PRODUCT_IMAGES = 10;
 
 const ProductFormModal = ({
   isOpen,
@@ -82,7 +78,8 @@ const ProductFormModal = ({
   const handleFileSelect = (files: File[]) => {
     const validFiles = files.filter((file) => file.type.startsWith("image/"));
 
-    const availableSlots = 5 - existingImages.length - form.images.length;
+    const availableSlots =
+      MAX_PRODUCT_IMAGES - existingImages.length - form.images.length;
 
     const selectedFiles = validFiles.slice(0, availableSlots);
 
@@ -299,7 +296,6 @@ const ProductFormModal = ({
                       </div>
                     ))}
 
-                    {/* Newly selected images */}
                     {previewUrls.map((url, index) => (
                       <div
                         key={url}
@@ -329,7 +325,8 @@ const ProductFormModal = ({
                   </div>
                 )}
 
-                {existingImages.length + form.images.length < 5 && (
+                {existingImages.length + form.images.length <
+                  MAX_PRODUCT_IMAGES && (
                   <div
                     onClick={() => fileInputRef.current?.click()}
                     onDragOver={(e) => {
@@ -353,7 +350,7 @@ const ProductFormModal = ({
                     </span>
 
                     <span className="font-montserrat text-[10px] tracking-wider text-descText2">
-                      PNG, JPG • MAX 5 IMAGES
+                      PNG, JPG • MAX 10 IMAGES
                     </span>
 
                     <span className="font-montserrat text-[10px] text-floesky">
