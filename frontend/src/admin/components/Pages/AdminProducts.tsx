@@ -26,6 +26,14 @@ const sizeOptions = [
   "6XL",
 ];
 
+const getPrimaryImageUrl = (product: Product) => {
+  return (
+    product.images.find((image) => image.is_primary)?.image_url ??
+    product.images[0]?.image_url ??
+    ""
+  );
+};
+
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +105,8 @@ const AdminProducts = () => {
           category: values.category,
           description: values.description,
           sizes: values.sizes,
-          image: values.image ?? undefined,
+          images: values.images,
+          deletedImageIds: values.deletedImageIds,
         });
 
         setProducts((prev) =>
@@ -106,14 +115,14 @@ const AdminProducts = () => {
           ),
         );
       } else {
-        if (!values.image) return;
+        if (values.images.length === 0) return;
 
         const newProduct = await createProduct({
           title: values.title,
           category: values.category,
           description: values.description,
           sizes: values.sizes,
-          image: values.image,
+          images: values.images,
         });
 
         setProducts((prev) => [newProduct, ...prev]);
@@ -208,15 +217,15 @@ const AdminProducts = () => {
                 <button
                   type="button"
                   onClick={() =>
-                    product.image_url && setPreviewProduct(product)
+                    product.images.length > 0 && setPreviewProduct(product)
                   }
-                  disabled={!product.image_url}
+                  disabled={product.images.length === 0}
                   aria-label={`Preview ${product.title} image`}
                   className="w-12 h-12 rounded-sm overflow-hidden bg-white/5 shrink-0 disabled:cursor-default enabled:cursor-zoom-in enabled:hover:ring-2 enabled:hover:ring-floesky/60 transition"
                 >
-                  {product.image_url ? (
+                  {product.images.length > 0 ? (
                     <img
-                      src={product.image_url}
+                      src={getPrimaryImageUrl(product)}
                       alt={product.title}
                       className="w-full h-full object-cover"
                     />
@@ -305,7 +314,7 @@ const AdminProducts = () => {
 
       <ImagePreviewModal
         isOpen={previewProduct !== null}
-        imageUrl={previewProduct?.image_url ?? ""}
+        images={previewProduct?.images ?? []}
         title={previewProduct?.title}
         onClose={() => setPreviewProduct(null)}
       />

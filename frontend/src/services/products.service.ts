@@ -20,8 +20,14 @@ const getProducts = async (): Promise<Product[]> => {
   return data.result;
 };
 
-const createProduct = async (product: ProductInput): Promise<Product> => {
+const createProduct = async (
+  product: ProductInput,
+): Promise<Product> => {
   const token = localStorage.getItem("adminToken");
+
+  if (!token) {
+    throw new Error("You are not logged in.");
+  }
 
   const formData = new FormData();
 
@@ -29,15 +35,16 @@ const createProduct = async (product: ProductInput): Promise<Product> => {
   formData.append("category", product.category);
   formData.append("description", product.description);
   formData.append("sizes", JSON.stringify(product.sizes));
-  formData.append("image", product.image);
+
+  product.images.forEach((image) => {
+    formData.append("images", image);
+  });
 
   const response = await fetch(`${API_URL}/products`, {
     method: "POST",
-
     headers: {
       Authorization: `Bearer ${token}`,
     },
-
     body: formData,
   });
 
@@ -56,6 +63,10 @@ const updateProduct = async (
 ): Promise<Product> => {
   const token = localStorage.getItem("adminToken");
 
+  if (!token) {
+    throw new Error("You are not logged in.");
+  }
+
   const formData = new FormData();
 
   formData.append("title", product.title);
@@ -63,17 +74,20 @@ const updateProduct = async (
   formData.append("description", product.description);
   formData.append("sizes", JSON.stringify(product.sizes));
 
-  if (product.image) {
-    formData.append("image", product.image);
-  }
+  product.images?.forEach((image) => {
+    formData.append("images", image);
+  });
+
+  formData.append(
+    "deletedImageIds",
+    JSON.stringify(product.deletedImageIds ?? []),
+  );
 
   const response = await fetch(`${API_URL}/products/${id}`, {
     method: "PATCH",
-
     headers: {
       Authorization: `Bearer ${token}`,
     },
-
     body: formData,
   });
 

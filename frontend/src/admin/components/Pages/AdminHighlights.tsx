@@ -10,7 +10,7 @@ import {
 import type { Highlight } from "../../../types/types";
 import HighlightFormModal from "../../components/common/HighlightFormModal";
 import DeleteConfirmModal from "../common/DeleteConfirmModal";
-import ImagePreviewModal from "../../components/common/ImagePreviewModal";
+import HighlightImagePreviewModal from "../../components/common/HighlightImagePreviewModal";
 import VideoPreviewModal from "../../components/common/VideoPreviewModal";
 import type { HighlightFormValues } from "../../../types/admintypes";
 
@@ -262,7 +262,7 @@ const AdminHighlights = () => {
         onConfirm={confirmDelete}
       />
 
-      <ImagePreviewModal
+      <HighlightImagePreviewModal
         isOpen={previewImage !== null}
         imageUrl={previewImage?.mediaUrl ?? ""}
         title={previewImage?.title}

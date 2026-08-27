@@ -2,9 +2,9 @@ export type ProductFormValues = {
   title: string;
   category: string;
   description: string;
-  image_url: string;
-  image: File | null;
   sizes: string[];
+  images: File[];
+  deletedImageIds: number[];
 };
 
 export type HighlightFormValues = {

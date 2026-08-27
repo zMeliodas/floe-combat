@@ -1,3 +1,5 @@
+import type { Product } from "./types";
+
 export type ReviewProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -25,4 +27,9 @@ export type PaginationProps = {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+};
+
+export type ProductPreviewModalProps = {
+  product: Product | null;
+  onClose: () => void;
 };

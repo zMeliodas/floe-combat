@@ -2,19 +2,19 @@ export type Highlight = {
   id: number;
   title: string;
   athlete: string;
-  mediaType: "video" | "image";   
-  mediaUrl: string;               
-  thumbnail?: string;             
+  mediaType: "video" | "image";
+  mediaUrl: string;
+  thumbnail?: string;
 };
 
-export interface Product {
+export type Product = {
   id: number;
   title: string;
   category: string;
   description: string;
-  image_url: string;
   sizes: string[];
-}
+  images: ProductImage[];
+};
 
 export interface Review {
   id: number;
@@ -29,6 +29,14 @@ export interface Review {
 }
 
 export type Theme = "light" | "dark";
+
+export type ProductImage = {
+  id: number;
+  product_id: number;
+  image_url: string;
+  is_primary: boolean;
+  sort_order: number;
+};
 
 export type ProductResponse = {
   success: boolean;
@@ -47,7 +55,7 @@ export type ProductInput = {
   category: string;
   description: string;
   sizes: string[];
-  image: File;
+  images: File[];
 };
 
 export type UpdateProductInput = {
@@ -55,5 +63,6 @@ export type UpdateProductInput = {
   category: string;
   description: string;
   sizes: string[];
-  image?: File;
+  images?: File[];
+  deletedImageIds: number[];
 };

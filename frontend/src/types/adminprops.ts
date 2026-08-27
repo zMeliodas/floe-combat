@@ -1,5 +1,9 @@
-import type { ProductFormValues, HighlightFormValues, ReviewFormValues } from "./admintypes";
-import type { Product, Highlight, Review } from "./types";
+import type {
+  ProductFormValues,
+  HighlightFormValues,
+  ReviewFormValues,
+} from "./admintypes";
+import type { Product, Highlight, Review, ProductImage } from "./types";
 
 export type ProductFormModalProps = {
   isOpen: boolean;
@@ -21,7 +25,7 @@ export type DeleteConfirmModalProps = {
 
 export type ImagePreviewModalProps = {
   isOpen: boolean;
-  imageUrl: string;
+  images: ProductImage[];
   title?: string;
   onClose: () => void;
 };
@@ -31,7 +35,7 @@ export type HighlightFormModalProps = {
   editingHighlight: Highlight | null;
   onClose: () => void;
   onSubmit: (values: HighlightFormValues) => void;
-}
+};
 
 export type ReviewFormModalProps = {
   isOpen: boolean;
@@ -39,4 +43,11 @@ export type ReviewFormModalProps = {
   designOptions: string[];
   onClose: () => void;
   onSubmit: (values: ReviewFormValues) => void;
+};
+
+export type HighlightImagePreviewModalProps = {
+  isOpen: boolean;
+  imageUrl: string;
+  title?: string;
+  onClose: () => void;
 };

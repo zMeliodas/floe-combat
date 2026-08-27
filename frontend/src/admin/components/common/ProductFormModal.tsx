@@ -9,14 +9,15 @@ import {
 } from "react-icons/fa";
 import type { ProductFormValues } from "../../../types/admintypes";
 import type { ProductFormModalProps } from "../../../types/adminprops";
+import type { ProductImage } from "../../../types/types";
 
 const emptyForm: ProductFormValues = {
   title: "",
   category: "",
   description: "",
-  image_url: "",
-  image: null,
   sizes: [],
+  images: [],
+  deletedImageIds: [],
 };
 
 const ProductFormModal = ({
@@ -30,72 +31,112 @@ const ProductFormModal = ({
 }: ProductFormModalProps) => {
   const [form, setForm] = useState<ProductFormValues>(emptyForm);
   const [isDragging, setIsDragging] = useState(false);
+  const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const objectUrlRef = useRef<string | null>(null);
+  const objectUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
+    objectUrlsRef.current.forEach((url) => {
+      URL.revokeObjectURL(url);
+    });
+
+    objectUrlsRef.current = [];
+    setPreviewUrls([]);
 
     if (editingProduct) {
       setForm({
         title: editingProduct.title,
         category: editingProduct.category,
         description: editingProduct.description,
-        image_url: editingProduct.image_url,
-        image: null,
         sizes: editingProduct.sizes,
+        images: [],
+        deletedImageIds: [],
       });
+
+      setExistingImages(editingProduct.images);
     } else {
-      setForm({ ...emptyForm, category: categories[0] ?? "" });
+      setForm({
+        ...emptyForm,
+        category: categories[0] ?? "",
+      });
+
+      setExistingImages([]);
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   }, [isOpen, editingProduct, categories]);
 
   useEffect(() => {
     return () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
+      objectUrlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
     };
   }, []);
 
-  const handleFileSelect = (file: File | undefined) => {
-    if (!file || !file.type.startsWith("image/")) return;
+  const handleFileSelect = (files: File[]) => {
+    const validFiles = files.filter((file) => file.type.startsWith("image/"));
 
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
+    const availableSlots = 5 - existingImages.length - form.images.length;
+
+    const selectedFiles = validFiles.slice(0, availableSlots);
+
+    if (selectedFiles.length === 0) return;
+
+    const urls = selectedFiles.map((file) => URL.createObjectURL(file));
+
+    objectUrlsRef.current.push(...urls);
+
+    setPreviewUrls((prev) => [...prev, ...urls]);
+
+    setForm((prev) => ({
+      ...prev,
+      images: [...prev.images, ...selectedFiles],
+    }));
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
+  };
 
-    const previewUrl = URL.createObjectURL(file);
-    objectUrlRef.current = previewUrl;
-    setForm((f) => ({
-      ...f,
-      image_url: previewUrl,
-      image: file,
+  const handleRemoveExistingImage = (imageId: number) => {
+    setExistingImages((prev) => prev.filter((image) => image.id !== imageId));
+
+    setForm((prev) => ({
+      ...prev,
+      deletedImageIds: [...prev.deletedImageIds, imageId],
     }));
   };
 
-  const handleRemoveImage = () => {
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
+  const handleRemoveNewImage = (index: number) => {
+    const url = previewUrls[index];
+
+    if (url) {
+      URL.revokeObjectURL(url);
+
+      objectUrlsRef.current = objectUrlsRef.current.filter(
+        (existingUrl) => existingUrl !== url,
+      );
     }
-    setForm((f) => ({
-      ...f,
-      image_url: editingProduct?.image_url ?? "",
-      image: null,
+
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
     }));
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    handleFileSelect(e.dataTransfer.files?.[0]);
+
+    handleFileSelect(Array.from(e.dataTransfer.files));
   };
 
   const toggleSize = (size: string) => {
@@ -107,6 +148,8 @@ const ProductFormModal = ({
     }));
   };
 
+  const totalImages = existingImages.length + form.images.length;
+
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
 
@@ -115,12 +158,11 @@ const ProductFormModal = ({
     if (
       !form.title.trim() ||
       !form.description.trim() ||
-      form.sizes.length === 0
+      form.sizes.length === 0 ||
+      totalImages === 0
     ) {
       return;
     }
-
-    if (!isEditing && !form.image) return;
 
     onSubmit(form);
   };
@@ -210,50 +252,84 @@ const ProductFormModal = ({
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2">
                 <label className="font-montserrat text-[11px] tracking-wider text-descText">
-                  PRODUCT IMAGE
+                  PRODUCT IMAGES
                 </label>
 
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                  multiple
+                  onChange={(e) =>
+                    handleFileSelect(Array.from(e.target.files ?? []))
+                  }
                   className="hidden"
                 />
 
-                {form.image_url ? (
-                  <div className="relative w-full aspect-video rounded-sm overflow-hidden bg-white/5 border border-borderColor group">
-                    <img
-                      src={form.image_url}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
+                {(existingImages.length > 0 || previewUrls.length > 0) && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {existingImages.map((image) => (
+                      <div
+                        key={image.id}
+                        className="group relative aspect-square overflow-hidden border border-borderColor bg-white/5"
+                      >
+                        <img
+                          src={image.image_url}
+                          alt="Product"
+                          className="w-full h-full object-cover"
+                        />
 
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-[11px] font-montserrat px-3 py-1.5 hover:bg-white/20 transition"
+                        {image.is_primary && (
+                          <span className="absolute top-2 left-2 bg-floesky text-black font-montserrat text-[9px] font-bold px-2 py-1">
+                            PRIMARY
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingImage(image.id)}
+                          disabled={isSubmitting}
+                          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/70 text-white hover:text-red-400 transition disabled:opacity-50"
+                          aria-label="Remove image"
+                        >
+                          <FaTrash size={10} />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Newly selected images */}
+                    {previewUrls.map((url, index) => (
+                      <div
+                        key={url}
+                        className="group relative aspect-square overflow-hidden border border-floesky/30 bg-white/5"
                       >
-                        <FaCloudUploadAlt size={12} />
-                        CHANGE
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-[11px] font-montserrat px-3 py-1.5 hover:bg-red-500/60 transition"
-                      >
-                        <FaTrash size={11} />
-                        REMOVE
-                      </button>
-                    </div>
+                        <img
+                          src={url}
+                          alt={`New product image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+
+                        <span className="absolute bottom-2 left-2 bg-black/70 text-floesky font-montserrat text-[9px] px-2 py-1">
+                          NEW
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNewImage(index)}
+                          disabled={isSubmitting}
+                          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/70 text-white hover:text-red-400 transition disabled:opacity-50"
+                          aria-label="Remove new image"
+                        >
+                          <FaTrash size={10} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ) : (
+                )}
+
+                {existingImages.length + form.images.length < 5 && (
                   <div
                     onClick={() => fileInputRef.current?.click()}
                     onDragOver={(e) => {
@@ -269,13 +345,19 @@ const ProductFormModal = ({
                     }`}
                   >
                     <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-descText">
-                      <FaImage size={16} />
+                      <FaCloudUploadAlt size={16} />
                     </div>
+
                     <span className="font-montserrat text-xs text-descText">
                       Click to upload or drag and drop
                     </span>
+
                     <span className="font-montserrat text-[10px] tracking-wider text-descText2">
-                      PNG, JPG UP TO 5MB
+                      PNG, JPG • MAX 5 IMAGES
+                    </span>
+
+                    <span className="font-montserrat text-[10px] text-floesky">
+                      {existingImages.length + form.images.length}/5
                     </span>
                   </div>
                 )}
@@ -327,9 +409,9 @@ const ProductFormModal = ({
                   !form.title.trim() ||
                   !form.description.trim() ||
                   form.sizes.length === 0 ||
-                  (!isEditing && !form.image)
+                  totalImages === 0
                 }
-                className="flex items-center justify-center gap-2 bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {isSubmitting && (
                   <FaSpinner className="animate-spin" size={12} />

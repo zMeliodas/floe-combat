@@ -1,11 +1,20 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import FilterButton from "../common/FilterButton";
 import type { Product } from "../../types/types";
 import { getProducts } from "../../services/products.service";
+import ProductPreviewModal from "../common/ProductPreviewModal";
 
 const categories = ["ALL", "SHORT SLEEVE", "LONG SLEEVE", "SPATS", "FULL SET"];
+
+const getPrimaryImageUrl = (product: Product) => {
+  return (
+    product.images.find((image) => image.is_primary)?.image_url ??
+    product.images[0]?.image_url ??
+    ""
+  );
+};
 
 const Products = () => {
   const [active, setActive] = useState("ALL");
@@ -94,7 +103,7 @@ const Products = () => {
                 className="group relative aspect-4/5 overflow-hidden cursor-pointer"
               >
                 <img
-                  src={project.image_url}
+                  src={getPrimaryImageUrl(project)}
                   alt={project.title}
                   className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
                 />
@@ -138,73 +147,12 @@ const Products = () => {
             </p>
           </div>
         )}
-
-        <AnimatePresence>
-          {selected && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelected(null)}
-              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ duration: 0.3 }}
-                onClick={(e) => e.stopPropagation()}
-                className="relative max-w-sm sm:max-w-xl lg:max-w-3xl w-full my-auto bg-black border border-borderColor overflow-hidden"
-              >
-                <button
-                  onClick={() => setSelected(null)}
-                  aria-label="Close"
-                  className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-black/40 rounded-full text-white hover:text-floesky transition duration-300"
-                >
-                  <FaTimes className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
-
-                <img
-                  src={selected.image_url}
-                  alt={selected.title}
-                  className="w-full h-full object-contain"
-                />
-
-                <div className="flex flex-col gap-4 p-5 sm:p-8">
-                  <span className="text-floesky font-montserrat text-xs font-bold tracking-widest">
-                    {selected.category}
-                  </span>
-
-                  <h3 className="font-archivo text-2xl sm:text-3xl font-bold tracking-tight">
-                    {selected.title}
-                  </h3>
-
-                  <p className="text-descText font-montserrat text-xs sm:text-sm leading-relaxed">
-                    {selected.description}
-                  </p>
-
-                  <div className="flex flex-col gap-2 pt-2">
-                    <span className="text-white/60 text-xs tracking-widest">
-                      AVAILABLE SIZES
-                    </span>
-
-                    <div className="flex flex-wrap gap-2">
-                      {selected.sizes.map((size) => (
-                        <span
-                          key={size}
-                          className="px-3 py-1 border border-white/20 text-white text-xs"
-                        >
-                          {size}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      <ProductPreviewModal
+        product={selected}
+        onClose={() => setSelected(null)}
+      />
     </main>
   );
 };
