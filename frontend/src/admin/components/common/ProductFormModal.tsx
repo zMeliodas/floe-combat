@@ -354,7 +354,7 @@ const ProductFormModal = ({
                     </span>
 
                     <span className="font-montserrat text-[10px] text-floesky">
-                      {existingImages.length + form.images.length}/5
+                      {existingImages.length + form.images.length}/{MAX_PRODUCT_IMAGES}
                     </span>
                   </div>
                 )}
