@@ -34,7 +34,7 @@ const highlightFileFilter: multer.Options["fileFilter"] = (
   file,
   callback,
 ) => {
-  // Main highlight media can be an image or video
+
   if (file.fieldname === "media") {
     if (
       file.mimetype.startsWith("image/") ||
@@ -48,7 +48,6 @@ const highlightFileFilter: multer.Options["fileFilter"] = (
     return;
   }
 
-  // Thumbnail must only be an image
   if (file.fieldname === "thumbnail") {
     if (file.mimetype.startsWith("image/")) {
       callback(null, true);
@@ -69,7 +68,7 @@ const uploadImage = multer({
 
   limits: {
     fileSize: 5 * 1024 * 1024,
-    files: 5,
+    files: 10,
   },
 });
 

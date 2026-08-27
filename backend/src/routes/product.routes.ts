@@ -15,14 +15,14 @@ router.get("/", getProductsController);
 router.post(
   "/",
   authMiddleware,
-  uploadImage.array("images", 5),
+  uploadImage.array("images", 10),
   createProductController,
 );
 
 router.patch(
   "/:id",
   authMiddleware,
-  uploadImage.array("images", 5),
+  uploadImage.array("images", 10),
   updateProductController,
 );
 

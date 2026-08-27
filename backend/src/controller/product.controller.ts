@@ -313,10 +313,10 @@ const updateProductController = async (req: Request, res: Response) => {
       return;
     }
 
-    if (finalImageCount > 5) {
+    if (finalImageCount > 10) {
       res.status(400).json({
         success: false,
-        message: "A product can have a maximum of 5 images.",
+        message: "A product can have a maximum of 10 images.",
       });
 
       return;
