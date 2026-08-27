@@ -10,7 +10,7 @@ import {
   getProductById,
   updateProduct,
 } from "../service/product.service.js";
-import { parseSizes } from "../utils/helper.js";
+import { parseDeletedImageIds, parseSizes } from "../utils/helper.js";
 import { createAdminActivity } from "../service/adminActivity.service.js";
 
 const getProductsController = async (_req: Request, res: Response) => {
@@ -37,6 +37,8 @@ const createProductController = async (req: Request, res: Response) => {
     unknown
   >;
 
+  const files = req.files as Express.Multer.File[] | undefined;
+
   if (
     typeof title !== "string" ||
     typeof category !== "string" ||
@@ -49,14 +51,16 @@ const createProductController = async (req: Request, res: Response) => {
       success: false,
       message: "Title, category, and description are required.",
     });
+    
     return;
   }
 
-  if (!req.file) {
+  if (!files || files.length === 0) {
     res.status(400).json({
       success: false,
-      message: "An image is required.",
+      message: "At least one product image is required.",
     });
+    
     return;
   }
 
@@ -67,26 +71,34 @@ const createProductController = async (req: Request, res: Response) => {
       success: false,
       message: 'Sizes must be a JSON array, such as ["S", "M", "L"].',
     });
-
+    
     return;
   }
 
-  let uploadedImage: {
-    imageUrl: string;
-    publicId: string;
-  } | null = null;
+  const uploadedImages: {
+    image_url: string;
+    image_public_id: string;
+  }[] = [];
 
   try {
-    uploadedImage = await uploadProductImage(req.file.buffer);
+    for (const file of files) {
+      const uploadedImage = await uploadProductImage(file.buffer);
 
-    const product = await createProduct({
-      title: title.trim(),
-      category: category.trim(),
-      description: description.trim(),
-      imageUrl: uploadedImage.imageUrl,
-      imagePublicId: uploadedImage.publicId,
-      sizes: parsedSizes,
-    });
+      uploadedImages.push({
+        image_url: uploadedImage.imageUrl,
+        image_public_id: uploadedImage.publicId,
+      });
+    }
+
+    const product = await createProduct(
+      {
+        title: title.trim(),
+        category: category.trim(),
+        description: description.trim(),
+        sizes: parsedSizes,
+      },
+      uploadedImages,
+    );
 
     try {
       await createAdminActivity(
@@ -106,12 +118,12 @@ const createProductController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
 
-    if (uploadedImage) {
+    for (const image of uploadedImages) {
       try {
-        await deleteProductImage(uploadedImage.publicId);
+        await deleteProductImage(image.image_public_id);
       } catch (cleanupError) {
         console.error(
-          "Failed to cleanup uploaded image after product creation failed:",
+          "Failed to cleanup uploaded product image:",
           cleanupError,
         );
       }
@@ -132,6 +144,7 @@ const deleteProductController = async (req: Request, res: Response) => {
       success: false,
       message: "Product ID must be a positive integer.",
     });
+
     return;
   }
 
@@ -143,24 +156,48 @@ const deleteProductController = async (req: Request, res: Response) => {
         success: false,
         message: "Product not found.",
       });
+
       return;
     }
 
+    const failedImages: string[] = [];
+
+    for (const image of deletedProduct.images) {
+      try {
+        await deleteProductImage(image.image_public_id);
+      } catch (cloudinaryError) {
+        console.error(
+          `Failed to delete Cloudinary image ${image.image_public_id}:`,
+          cloudinaryError,
+        );
+
+        failedImages.push(image.image_public_id);
+      }
+    }
+
     try {
-      await deleteProductImage(deletedProduct.image_public_id);
-    } catch (cloudinaryError) {
-      console.error(cloudinaryError);
+      await createAdminActivity(
+        req.admin!.adminId,
+        "DELETE_PRODUCT",
+        deletedProduct.id,
+      );
+    } catch (activityError) {
+      console.error("Failed to create admin activity:", activityError);
+    }
+
+    if (failedImages.length > 0) {
       res.status(200).json({
         success: true,
-        message: "Product deleted, but image cleanup failed.",
+        message: "Product deleted, but some image cleanup failed.",
         result: deletedProduct,
       });
+
       return;
     }
 
     res.status(200).json({
       success: true,
-      message: "Product and image deleted successfully.",
+      message: "Product and images deleted successfully.",
       result: deletedProduct,
     });
   } catch (error) {
@@ -176,10 +213,10 @@ const deleteProductController = async (req: Request, res: Response) => {
 const updateProductController = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
-  const { title, category, description, sizes } = req.body as Record<
-    string,
-    unknown
-  >;
+  const { title, category, description, sizes, deletedImageIds } =
+    req.body as Record<string, unknown>;
+
+  const files = (req.files as Express.Multer.File[] | undefined) ?? [];
 
   if (!Number.isSafeInteger(id) || id <= 0) {
     res.status(400).json({
@@ -213,14 +250,25 @@ const updateProductController = async (req: Request, res: Response) => {
       success: false,
       message: 'Sizes must be a JSON array, such as ["S", "M", "L"].',
     });
+    
+    return;
+  }
+
+  const parsedDeletedImageIds = parseDeletedImageIds(deletedImageIds);
+
+  if (!parsedDeletedImageIds) {
+    res.status(400).json({
+      success: false,
+      message: "Deleted image IDs must be a valid array.",
+    });
 
     return;
   }
 
-  let newImage: {
-    imageUrl: string;
-    publicId: string;
-  } | null = null;
+  const uploadedImages: {
+    image_url: string;
+    image_public_id: string;
+  }[] = [];
 
   try {
     const existingProduct = await getProductById(id);
@@ -234,46 +282,76 @@ const updateProductController = async (req: Request, res: Response) => {
       return;
     }
 
-    if (req.file) {
-      newImage = await uploadProductImage(req.file.buffer);
-    }
-
-    const updatedProduct = await updateProduct(
-      id,
-      newImage
-        ? {
-            title: title.trim(),
-            category: category.trim(),
-            description: description.trim(),
-            sizes: parsedSizes,
-            imageUrl: newImage.imageUrl,
-            imagePublicId: newImage.publicId,
-          }
-        : {
-            title: title.trim(),
-            category: category.trim(),
-            description: description.trim(),
-            sizes: parsedSizes,
-          },
+    const existingImageIds = new Set(
+      existingProduct.images.map((image) => image.id),
     );
 
-    if (!updatedProduct) {
+    const hasInvalidImageId = parsedDeletedImageIds.some(
+      (imageId) => !existingImageIds.has(imageId),
+    );
+
+    if (hasInvalidImageId) {
+      res.status(400).json({
+        success: false,
+        message: "One or more images do not belong to this product.",
+      });
+
+      return;
+    }
+
+    const finalImageCount =
+      existingProduct.images.length -
+      parsedDeletedImageIds.length +
+      files.length;
+
+    if (finalImageCount < 1) {
+      res.status(400).json({
+        success: false,
+        message: "A product must have at least one image.",
+      });
+
+      return;
+    }
+
+    if (finalImageCount > 5) {
+      res.status(400).json({
+        success: false,
+        message: "A product can have a maximum of 5 images.",
+      });
+
+      return;
+    }
+
+    for (const file of files) {
+      const uploadedImage = await uploadProductImage(file.buffer);
+
+      uploadedImages.push({
+        image_url: uploadedImage.imageUrl,
+        image_public_id: uploadedImage.publicId,
+      });
+    }
+
+    const result = await updateProduct(
+      id,
+      {
+        title: title.trim(),
+        category: category.trim(),
+        description: description.trim(),
+        sizes: parsedSizes,
+      },
+      uploadedImages,
+      parsedDeletedImageIds,
+    );
+
+    if (!result) {
       throw new Error("Product was not returned after update.");
     }
 
-    if (newImage) {
+    for (const image of result.deletedImages) {
       try {
-        await deleteProductImage(existingProduct.image_public_id);
+        await deleteProductImage(image.image_public_id);
       } catch (cloudinaryError) {
-        console.error(cloudinaryError);
-
-        res.status(200).json({
-          success: true,
-          message: "Product updated, but old image cleanup failed.",
-          result: updatedProduct,
-        });
-
-        return;
+        console.error("Failed to delete old product image:", cloudinaryError);
       }
     }
 
@@ -281,7 +359,7 @@ const updateProductController = async (req: Request, res: Response) => {
       await createAdminActivity(
         req.admin!.adminId,
         "UPDATE_PRODUCT",
-        updatedProduct.id,
+        result.product.id,
       );
     } catch (activityError) {
       console.error("Failed to create admin activity:", activityError);
@@ -290,19 +368,17 @@ const updateProductController = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Product updated successfully.",
-      result: updatedProduct,
+      result: result.product,
     });
   } catch (error) {
     console.error(error);
 
-    if (newImage) {
+    // Remove newly uploaded Cloudinary files if DB update fails
+    for (const image of uploadedImages) {
       try {
-        await deleteProductImage(newImage.publicId);
+        await deleteProductImage(image.image_public_id);
       } catch (cleanupError) {
-        console.error(
-          "Failed to cleanup new image after product update failed:",
-          cleanupError,
-        );
+        console.error("Failed to cleanup new product image:", cleanupError);
       }
     }
 

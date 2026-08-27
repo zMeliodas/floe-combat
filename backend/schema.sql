@@ -95,3 +95,19 @@ CREATE TABLE reviews (
       featured = false OR status = 'approved'
     )
 );
+
+CREATE TABLE product_images (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    product_id INTEGER NOT NULL
+        REFERENCES products(id)
+        ON DELETE CASCADE,
+
+    image_url TEXT NOT NULL,
+    image_public_id TEXT NOT NULL,
+
+    is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

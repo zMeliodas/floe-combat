@@ -21,4 +21,33 @@ const parseSizes = (sizes: unknown): string[] | null => {
   }
 };
 
-export { parseSizes };
+const parseDeletedImageIds = (value: unknown): number[] | null => {
+  if (value === undefined || value === "") {
+    return [];
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (
+      !Array.isArray(parsed) ||
+      !parsed.every(
+        (id) => Number.isSafeInteger(id) && id > 0,
+      )
+    ) {
+      return null;
+    }
+
+    return [...new Set(parsed)];
+  } catch {
+    return null;
+  }
+};
+
+export { parseSizes, parseDeletedImageIds };
+
+
