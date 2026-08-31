@@ -49,35 +49,19 @@ const updateHighlight = async (
 ): Promise<Highlight> => {
   const token = localStorage.getItem("adminToken");
 
-  if (!token) {
-    throw new Error("You are not logged in.");
-  }
-
-  const formData = new FormData();
-
-  formData.append("title", highlight.title);
-  formData.append("athlete", highlight.athlete);
-
-  if (highlight.media) {
-    formData.append("media", highlight.media);
-  }
-
-  if (highlight.thumbnail) {
-    formData.append("thumbnail", highlight.thumbnail);
-  }
-
   const response = await fetch(`${API_URL}/highlights/${id}`, {
     method: "PUT",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: formData,
+    body: JSON.stringify(highlight),
   });
 
   const data: HighlightResponse = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to update highlight.");
+    throw new Error(data.message || "Could not update highlight.");
   }
 
   return data.result;

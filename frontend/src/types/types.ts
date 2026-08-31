@@ -80,8 +80,11 @@ export type CreateHighlightInput = {
 export type UpdateHighlightInput = {
   title: string;
   athlete: string;
-  media?: File;
-  thumbnail?: File;
+  media_type?: "image" | "video";
+  media_url?: string;
+  media_public_id?: string;
+  thumbnail_url?: string | null;
+  thumbnail_public_id?: string | null;
 };
 
 export type ReviewStatus = "pending" | "approved" | "rejected";

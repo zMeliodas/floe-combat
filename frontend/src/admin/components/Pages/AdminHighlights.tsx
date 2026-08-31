@@ -7,7 +7,7 @@ import {
   FaImage,
   FaVideo,
 } from "react-icons/fa";
-import type { Highlight } from "../../../types/types";
+import type { Highlight, UpdateHighlightInput } from "../../../types/types";
 import HighlightFormModal from "../../components/common/HighlightFormModal";
 import DeleteConfirmModal from "../common/DeleteConfirmModal";
 import HighlightImagePreviewModal from "../../components/common/HighlightImagePreviewModal";
@@ -17,6 +17,7 @@ import {
   getHighlights,
   createHighlight,
   deleteHighlight,
+  updateHighlight,
 } from "../../../services/highlights.service";
 import { uploadToCloudinary } from "../../../services/cloudinary.service";
 
@@ -92,33 +93,72 @@ const AdminHighlights = () => {
       setError("");
 
       if (editingHighlight) {
-        return;
+        const updateData: UpdateHighlightInput = {
+          title: values.title,
+          athlete: values.athlete,
+        };
+
+        if (values.mediaFile) {
+          const uploadedMedia = await uploadToCloudinary(
+            values.mediaFile,
+            "highlight-media",
+          );
+
+          updateData.media_type = uploadedMedia.resource_type;
+          updateData.media_url = uploadedMedia.secure_url;
+          updateData.media_public_id = uploadedMedia.public_id;
+        }
+
+        // Upload replacement thumbnail only when selected
+        if (values.thumbnailFile) {
+          const uploadedThumbnail = await uploadToCloudinary(
+            values.thumbnailFile,
+            "highlight-thumbnail",
+          );
+
+          updateData.thumbnail_url = uploadedThumbnail.secure_url;
+          updateData.thumbnail_public_id = uploadedThumbnail.public_id;
+        }
+
+        const updatedHighlight = await updateHighlight(
+          editingHighlight.id,
+          updateData,
+        );
+
+        setHighlights((prev) =>
+          prev.map((highlight) =>
+            highlight.id === updatedHighlight.id ? updatedHighlight : highlight,
+          ),
+        );
+      } else {
+        if (!values.mediaFile) {
+          throw new Error("Media file is required.");
+        }
+
+        const uploadedMedia = await uploadToCloudinary(
+          values.mediaFile,
+          "highlight-media",
+        );
+
+        const uploadedThumbnail = values.thumbnailFile
+          ? await uploadToCloudinary(
+              values.thumbnailFile,
+              "highlight-thumbnail",
+            )
+          : null;
+
+        const newHighlight = await createHighlight({
+          title: values.title,
+          athlete: values.athlete,
+          media_type: uploadedMedia.resource_type,
+          media_url: uploadedMedia.secure_url,
+          media_public_id: uploadedMedia.public_id,
+          thumbnail_url: uploadedThumbnail?.secure_url ?? null,
+          thumbnail_public_id: uploadedThumbnail?.public_id ?? null,
+        });
+
+        setHighlights((prev) => [newHighlight, ...prev]);
       }
-
-      if (!values.mediaFile) {
-        throw new Error("Media file is required.");
-      }
-
-      const uploadedMedia = await uploadToCloudinary(
-        values.mediaFile,
-        "highlight-media",
-      );
-
-      const uploadedThumbnail = values.thumbnailFile
-        ? await uploadToCloudinary(values.thumbnailFile, "highlight-thumbnail")
-        : null;
-
-      const newHighlight = await createHighlight({
-        title: values.title,
-        athlete: values.athlete,
-        media_type: uploadedMedia.resource_type,
-        media_url: uploadedMedia.secure_url,
-        media_public_id: uploadedMedia.public_id,
-        thumbnail_url: uploadedThumbnail?.secure_url ?? null,
-        thumbnail_public_id: uploadedThumbnail?.public_id ?? null,
-      });
-
-      setHighlights((prev) => [newHighlight, ...prev]);
 
       closeForm();
     } catch (error) {
@@ -155,7 +195,6 @@ const AdminHighlights = () => {
 
   return (
     <div className="flex flex-col gap-5">
-
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <FaSearch
