@@ -70,8 +70,11 @@ export type HighlightsResponse = {
 export type CreateHighlightInput = {
   title: string;
   athlete: string;
-  media: File;
-  thumbnail?: File;
+  media_type: "image" | "video";
+  media_url: string;
+  media_public_id: string;
+  thumbnail_url: string | null;
+  thumbnail_public_id: string | null;
 };
 
 export type UpdateHighlightInput = {
@@ -136,4 +139,15 @@ export type CreateCustomerReviewInput = {
   product_name: string;
   rating: number;
   review_text: string;
+};
+
+export type UploadPurpose =
+  | "highlight-media"
+  | "highlight-thumbnail"
+  | "product-image";
+
+export type CloudinaryUploadResult = {
+  secure_url: string;
+  public_id: string;
+  resource_type: "image" | "video";
 };

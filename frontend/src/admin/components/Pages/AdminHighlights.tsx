@@ -18,6 +18,7 @@ import {
   createHighlight,
   deleteHighlight,
 } from "../../../services/highlights.service";
+import { uploadToCloudinary } from "../../../services/cloudinary.service";
 
 const AdminHighlights = () => {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
@@ -95,14 +96,26 @@ const AdminHighlights = () => {
       }
 
       if (!values.mediaFile) {
-        return;
+        throw new Error("Media file is required.");
       }
+
+      const uploadedMedia = await uploadToCloudinary(
+        values.mediaFile,
+        "highlight-media",
+      );
+
+      const uploadedThumbnail = values.thumbnailFile
+        ? await uploadToCloudinary(values.thumbnailFile, "highlight-thumbnail")
+        : null;
 
       const newHighlight = await createHighlight({
         title: values.title,
         athlete: values.athlete,
-        media: values.mediaFile,
-        thumbnail: values.thumbnailFile ?? undefined,
+        media_type: uploadedMedia.resource_type,
+        media_url: uploadedMedia.secure_url,
+        media_public_id: uploadedMedia.public_id,
+        thumbnail_url: uploadedThumbnail?.secure_url ?? null,
+        thumbnail_public_id: uploadedThumbnail?.public_id ?? null,
       });
 
       setHighlights((prev) => [newHighlight, ...prev]);
@@ -110,7 +123,7 @@ const AdminHighlights = () => {
       closeForm();
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Could not create highlight.",
+        error instanceof Error ? error.message : "Could not save highlight.",
       );
     } finally {
       setIsSaving(false);
