@@ -159,6 +159,8 @@ const AdminReviews = () => {
           item.id === updatedReview.id ? updatedReview : item,
         ),
       );
+
+      window.dispatchEvent(new Event("reviews-updated"));
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Could not approve review.",
@@ -178,6 +180,8 @@ const AdminReviews = () => {
       setReviews((prev) =>
         prev.filter((review) => review.id !== rejectTarget.id),
       );
+
+      window.dispatchEvent(new Event("reviews-updated"));
 
       setRejectTarget(null);
     } catch (error) {

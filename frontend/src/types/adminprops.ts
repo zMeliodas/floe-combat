@@ -57,3 +57,14 @@ export type HighlightImagePreviewModalProps = {
   title?: string;
   onClose: () => void;
 };
+
+export type SidebarProps = {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+};

@@ -1,6 +1,7 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { FaTimes, FaStar, FaRegStar, FaSpinner } from "react-icons/fa";
+import { FaRegStar, FaSpinner, FaStar, FaTimes } from "react-icons/fa";
+
 import type { ReviewFormValues } from "../../../types/admintypes";
 import type { ReviewFormModalProps } from "../../../types/adminprops";
 
@@ -25,6 +26,9 @@ const ReviewFormModal = ({
 }: ReviewFormModalProps) => {
   const [form, setForm] = useState<ReviewFormValues>(emptyForm);
 
+  const isEditing = editingReview !== null;
+
+  // Reset form whenever modal opens or edit target changes.
   useEffect(() => {
     if (!isOpen) return;
 
@@ -38,30 +42,50 @@ const ReviewFormModal = ({
         review_text: editingReview.review_text,
         featured: editingReview.featured,
       });
-    } else {
-      const firstProduct = products[0];
 
-      setForm({
-        ...emptyForm,
-        product_id: firstProduct?.id ?? null,
-        product_name: firstProduct?.title ?? "",
-      });
+      return;
     }
-  }, [isOpen, editingReview, products]);
+
+    setForm(emptyForm);
+  }, [isOpen, editingReview]);
+
+  // Select the first product only if no product is selected yet.
+  // This prevents the dropdown from resetting after the user changes it.
+  useEffect(() => {
+    if (
+      !isOpen ||
+      editingReview ||
+      form.product_id !== null ||
+      products.length === 0
+    ) {
+      return;
+    }
+
+    const firstProduct = products[0];
+
+    setForm((prev) => ({
+      ...prev,
+      product_id: Number(firstProduct.id),
+      product_name: firstProduct.title,
+    }));
+  }, [isOpen, editingReview, products, form.product_id]);
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (isSubmitting) return;
 
-    if (!form.author.trim() || !form.review_text.trim() || !form.product_name) {
+    if (
+      !form.author.trim() ||
+      !form.review_text.trim() ||
+      !form.product_name ||
+      form.product_id === null
+    ) {
       return;
     }
 
     onSubmit(form);
   };
-
-  const isEditing = editingReview !== null;
 
   return (
     <AnimatePresence>
@@ -70,46 +94,67 @@ const ReviewFormModal = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => {
+            if (isSubmitting) return;
+            onClose();
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4"
         >
           <motion.form
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{
+              opacity: 0,
+              scale: 0.95,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: 20,
+            }}
             transition={{ duration: 0.25 }}
             onClick={(e) => e.stopPropagation()}
             onSubmit={handleSubmit}
-            className="relative w-full max-w-lg my-auto bg-black border border-white/10 flex flex-col"
+            className="relative my-auto flex w-full max-w-lg flex-col border border-white/10 bg-black"
           >
-            <div className="flex items-center justify-between px-4 py-4 sm:px-6 border-b border-white/5">
+            <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6">
               <h2 className="font-montserrat text-sm font-bold tracking-[2px] text-white">
                 {isEditing ? "EDIT REVIEW" : "ADD REVIEW"}
               </h2>
+
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={onClose}
                 aria-label="Close"
-                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white transition"
+                className="flex h-8 w-8 items-center justify-center text-white/40 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <FaTimes size={14} />
               </button>
             </div>
 
-            <div className="custom-scroll flex flex-col gap-4 px-4 py-5 sm:px-6 max-h-[70vh] overflow-y-auto">
+            <div className="custom-scroll flex max-h-[70vh] flex-col gap-4 overflow-y-auto px-4 py-5 sm:px-6">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <label className="font-montserrat text-[11px] tracking-wider text-white/40">
                     AUTHOR
                   </label>
+
                   <input
                     required
                     value={form.author}
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, author: e.target.value }))
+                      setForm((prev) => ({
+                        ...prev,
+                        author: e.target.value,
+                      }))
                     }
                     placeholder="e.g. Coach Ronnie DC"
-                    className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40"
+                    className="border border-white/10 bg-white/2 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:border-floesky/40 focus:outline-none"
                   />
                 </div>
 
@@ -117,13 +162,17 @@ const ReviewFormModal = ({
                   <label className="font-montserrat text-[11px] tracking-wider text-white/40">
                     ROLE
                   </label>
+
                   <input
                     value={form.role}
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, role: e.target.value }))
+                      setForm((prev) => ({
+                        ...prev,
+                        role: e.target.value,
+                      }))
                     }
                     placeholder="e.g. BJJ Purple Belt"
-                    className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40"
+                    className="border border-white/10 bg-white/2 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:border-floesky/40 focus:outline-none"
                   />
                 </div>
               </div>
@@ -134,31 +183,34 @@ const ReviewFormModal = ({
                 </label>
 
                 <select
-                  value={form.product_id ?? ""}
+                  value={
+                    form.product_id !== null ? String(form.product_id) : ""
+                  }
+                  disabled={products.length === 0}
                   onChange={(e) => {
-                    const productId = Number(e.target.value);
-
                     const selectedProduct = products.find(
-                      (product) => product.id === productId,
+                      (product) => String(product.id) === e.target.value,
                     );
+
+                    if (!selectedProduct) return;
 
                     setForm((prev) => ({
                       ...prev,
-                      product_id: selectedProduct?.id ?? null,
-                      product_name: selectedProduct?.title ?? "",
+                      product_id: Number(selectedProduct.id),
+                      product_name: selectedProduct.title,
                     }));
                   }}
-                  className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white/80 focus:outline-none focus:border-floesky/40"
+                  className="border border-white/10 bg-black px-3 py-2.5 font-montserrat text-sm text-white/80 focus:border-floesky/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {products.map((product) => (
-                    <option
-                      key={product.id}
-                      value={product.id}
-                      className="bg-black"
-                    >
-                      {product.title}
-                    </option>
-                  ))}
+                  {products.length === 0 ? (
+                    <option value="">No products available</option>
+                  ) : (
+                    products.map((product) => (
+                      <option key={product.id} value={String(product.id)}>
+                        {product.title}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
 
@@ -166,15 +218,23 @@ const ReviewFormModal = ({
                 <label className="font-montserrat text-[11px] tracking-wider text-white/40">
                   RATING
                 </label>
+
                 <div className="flex items-center gap-1.5">
-                  {[1, 2, 3, 4, 5].map((n) => (
+                  {[1, 2, 3, 4, 5].map((rating) => (
                     <button
                       type="button"
-                      key={n}
-                      onClick={() => setForm((f) => ({ ...f, rating: n }))}
-                      aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      key={rating}
+                      disabled={isSubmitting}
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          rating,
+                        }))
+                      }
+                      aria-label={`${rating} star${rating > 1 ? "s" : ""}`}
+                      className="disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {n <= form.rating ? (
+                      {rating <= form.rating ? (
                         <FaStar className="text-floesky" size={18} />
                       ) : (
                         <FaRegStar className="text-white/20" size={18} />
@@ -188,30 +248,36 @@ const ReviewFormModal = ({
                 <label className="font-montserrat text-[11px] tracking-wider text-white/40">
                   REVIEW TEXT
                 </label>
+
                 <textarea
                   required
                   value={form.review_text}
                   onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
+                    setForm((prev) => ({
+                      ...prev,
                       review_text: e.target.value,
                     }))
                   }
                   rows={4}
                   placeholder="What did they say?"
-                  className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-floesky/40 resize-none"
+                  className="resize-none border border-white/10 bg-white/2 px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-white/20 focus:border-floesky/40 focus:outline-none"
                 />
               </div>
 
-              <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+              <label className="flex w-fit cursor-pointer select-none items-center gap-2.5">
                 <input
                   type="checkbox"
                   checked={form.featured}
+                  disabled={isSubmitting}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, featured: e.target.checked }))
+                    setForm((prev) => ({
+                      ...prev,
+                      featured: e.target.checked,
+                    }))
                   }
-                  className="w-4 h-4 accent-floesky"
+                  className="h-4 w-4 accent-floesky"
                 />
+
                 <span className="font-montserrat text-xs text-white/60">
                   Feature this review
                 </span>
@@ -226,23 +292,26 @@ const ReviewFormModal = ({
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-1.5 px-4 py-4 sm:gap-3 sm:px-6 border-t border-white/5">
+            <div className="flex items-center justify-end gap-1.5 border-t border-white/5 px-4 py-4 sm:gap-3 sm:px-6">
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={onClose}
-                className="font-montserrat text-xs tracking-wider text-white/40 hover:text-white px-4 py-2.5 transition"
+                className="px-4 py-2.5 font-montserrat text-xs tracking-wider text-white/40 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
               >
                 CANCEL
               </button>
+
               <button
                 type="submit"
                 disabled={
                   isSubmitting ||
                   !form.author.trim() ||
                   !form.review_text.trim() ||
-                  !form.product_name
+                  !form.product_name ||
+                  form.product_id === null
                 }
-                className="flex items-center justify-center gap-2 bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 rounded-sm bg-floesky px-5 py-2.5 font-montserrat text-xs font-bold tracking-wider text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
               >
                 {isSubmitting && (
                   <FaSpinner size={12} className="animate-spin" />

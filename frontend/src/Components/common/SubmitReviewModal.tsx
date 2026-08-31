@@ -125,20 +125,22 @@ const SubmitReviewModal = ({
             <select
               value={form.product_id ?? ""}
               onChange={(e) => {
-                const productId = Number(e.target.value);
+                const selectedProduct = products.find(
+                  (product) => String(product.id) === e.target.value,
+                );
 
-                const product = products.find((item) => item.id === productId);
+                if (!selectedProduct) return;
 
                 setForm((prev) => ({
                   ...prev,
-                  product_id: product?.id ?? null,
-                  product_name: product?.title ?? "",
+                  product_id: Number(selectedProduct.id),
+                  product_name: selectedProduct.title,
                 }));
               }}
               className="border border-borderColor bg-black p-2 text-sm text-white"
             >
               {products.map((product) => (
-                <option key={product.id} value={product.id}>
+                <option key={product.id} value={String(product.id)}>
                   {product.title}
                 </option>
               ))}
