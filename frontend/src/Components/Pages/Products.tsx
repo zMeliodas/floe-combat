@@ -4,6 +4,7 @@ import FilterButton from "../common/FilterButton";
 import type { Product } from "../../types/types";
 import { getProducts } from "../../services/products.service";
 import ProductPreviewModal from "../common/ProductPreviewModal";
+import ProductSkeleton from "../common/ProductSkeleton";
 
 const categories = ["ALL", "SHORT SLEEVE", "LONG SLEEVE", "SPATS", "FULL SET"];
 
@@ -91,10 +92,10 @@ const Products = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex min-h-60 items-center justify-center w-full max-w-7xl">
-            <p className="font-montserrat text-xs font-bold tracking-widest text-white/30">
-              LOADING PRODUCTS...
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 max-w-7xl w-full pb-16 sm:pb-20">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <ProductSkeleton key={index} />
+            ))}
           </div>
         ) : fetchError ? (
           <div className="flex min-h-60 items-center justify-center w-full max-w-7xl">
