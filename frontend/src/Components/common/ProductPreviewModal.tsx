@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 
-import type { ProductPreviewModalProps } from "../../types/types";
+import type { ProductPreviewModalProps } from "../../types/props";
 
 const ProductPreviewModal = ({
   product,

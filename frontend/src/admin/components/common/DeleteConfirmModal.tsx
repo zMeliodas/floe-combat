@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { DeleteConfirmModalProps } from "../../../types/adminprops";
+import { FaSpinner } from "react-icons/fa";
 
 const DeleteConfirmModal = ({
   isOpen,
   title = "DELETE ITEM",
   itemName,
+  isDeleting,
   onClose,
   onConfirm,
 }: DeleteConfirmModalProps) => {
@@ -43,10 +45,14 @@ const DeleteConfirmModal = ({
                 CANCEL
               </button>
               <button
+                type="button"
                 onClick={onConfirm}
-                className="bg-red-500/90 text-white font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition"
+                disabled={isDeleting}
+                className="flex items-center justify-center gap-2 bg-red-500/90 text-white font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:cursor-not-allowed disabled:opacity-50"
               >
-                DELETE
+                {isDeleting && <FaSpinner size={12} className="animate-spin" />}
+
+                {isDeleting ? "DELETING..." : "DELETE"}
               </button>
             </div>
           </motion.div>

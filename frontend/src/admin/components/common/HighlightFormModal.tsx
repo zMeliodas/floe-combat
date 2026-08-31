@@ -6,6 +6,7 @@ import {
   FaTimes,
   FaTrash,
   FaVideo,
+  FaSpinner,
 } from "react-icons/fa";
 import type { HighlightFormValues } from "../../../types/admintypes";
 import type { HighlightFormModalProps } from "../../../types/adminprops";
@@ -13,14 +14,15 @@ import type { HighlightFormModalProps } from "../../../types/adminprops";
 const emptyForm: HighlightFormValues = {
   title: "",
   athlete: "",
-  mediaType: "image",
-  mediaUrl: "",
-  thumbnail: "",
+  media_type: "image",
+  mediaFile: null,
+  thumbnailFile: null,
 };
 
 const HighlightFormModal = ({
   isOpen,
   editingHighlight,
+  isSubmitting,
   onClose,
   onSubmit,
 }: HighlightFormModalProps) => {
@@ -41,19 +43,13 @@ const HighlightFormModal = ({
     setForm({
       title: editingHighlight?.title ?? "",
       athlete: editingHighlight?.athlete ?? "",
-      mediaType: editingHighlight?.mediaType ?? "image",
-      mediaUrl: "",
-      thumbnail: "",
+      media_type: editingHighlight?.media_type ?? "image",
+      mediaFile: null,
+      thumbnailFile: null,
     });
 
-    /*
-     * For editing existing highlights, we only show the existing
-     * media as a preview. The actual File will only exist after
-     * the admin selects a replacement file.
-     */
-    setMediaPreview(editingHighlight ? editingHighlight.mediaUrl : "");
-
-    setThumbnailPreview(editingHighlight?.thumbnail ?? "");
+    setMediaPreview(editingHighlight?.media_url ?? "");
+    setThumbnailPreview(editingHighlight?.thumbnail_url ?? "");
 
     if (mediaInputRef.current) {
       mediaInputRef.current.value = "";
@@ -67,7 +63,7 @@ const HighlightFormModal = ({
   const handleMediaFile = (file?: File) => {
     if (!file) return;
 
-    const expectedType = form.mediaType === "image" ? "image/" : "video/";
+    const expectedType = form.media_type === "image" ? "image/" : "video/";
 
     if (!file.type.startsWith(expectedType)) {
       return;
@@ -171,16 +167,11 @@ const HighlightFormModal = ({
   };
 
   const handleMediaTypeChange = (mediaType: "image" | "video") => {
-    /*
-     * Reset media when switching types so an image isn't
-     * accidentally submitted as a video or vice versa.
-     */
     removeMedia();
 
     setForm((prev) => ({
       ...prev,
-      mediaType,
-      thumbnail: mediaType === "image" ? "" : prev.thumbnail,
+      media_type: mediaType,
     }));
 
     if (mediaType === "image") {
@@ -188,27 +179,16 @@ const HighlightFormModal = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
 
     if (!form.title.trim() || !form.athlete.trim()) {
       return;
     }
 
-    /*
-     * When creating a highlight, a media file is required.
-     *
-     * When editing, mediaFile can be null because the admin
-     * may want to keep the existing media.
-     */
-    if (!editingHighlight && !form.mediaUrl) {
-      return;
-    }
-
-    /*
-     * Video highlights require a thumbnail when creating.
-     */
-    if (form.mediaType === "video" && !editingHighlight && !form.thumbnail) {
+    if (!editingHighlight && !form.mediaFile) {
       return;
     }
 
@@ -217,7 +197,7 @@ const HighlightFormModal = ({
 
   const isEditing = editingHighlight !== null;
 
-  const mediaAccept = form.mediaType === "image" ? "image/*" : "video/*";
+  const mediaAccept = form.media_type === "image" ? "image/*" : "video/*";
 
   return (
     <AnimatePresence>
@@ -251,7 +231,6 @@ const HighlightFormModal = ({
             className="my-auto flex w-full max-w-lg max-h-[90vh] flex-col border border-white/10 bg-black"
           >
             {/* HEADER */}
-
             <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6">
               <h2 className="font-montserrat text-sm font-bold tracking-[2px] text-white">
                 {isEditing ? "EDIT HIGHLIGHT" : "ADD HIGHLIGHT"}
@@ -326,7 +305,7 @@ const HighlightFormModal = ({
                     type="button"
                     onClick={() => handleMediaTypeChange("image")}
                     className={`flex items-center justify-center gap-2 px-3 py-2.5 border font-montserrat text-xs tracking-wider transition ${
-                      form.mediaType === "image"
+                      form.media_type === "image"
                         ? "border-floesky/50 bg-floesky/10 text-floesky"
                         : "border-borderColor text-descText2 hover:text-floesky hover:border-floesky"
                     }`}
@@ -339,7 +318,7 @@ const HighlightFormModal = ({
                     type="button"
                     onClick={() => handleMediaTypeChange("video")}
                     className={`flex items-center justify-center gap-2 px-3 py-2.5 border font-montserrat text-xs tracking-wider transition ${
-                      form.mediaType === "video"
+                      form.media_type === "video"
                         ? "border-floesky/50 bg-floesky/10 text-floesky"
                         : "border-borderColor text-descText2 hover:text-floesky hover:border-floesky"
                     }`}
@@ -354,7 +333,7 @@ const HighlightFormModal = ({
 
               <div className="flex flex-col gap-1.5">
                 <label className="font-montserrat text-[11px] tracking-wider text-descText">
-                  {form.mediaType === "image" ? "IMAGE" : "VIDEO"}
+                  {form.media_type === "image" ? "IMAGE" : "VIDEO"}
                 </label>
 
                 <input
@@ -367,7 +346,7 @@ const HighlightFormModal = ({
 
                 {mediaPreview ? (
                   <div className="relative w-full aspect-video overflow-hidden border border-borderColor bg-white/5 group">
-                    {form.mediaType === "image" ? (
+                    {form.media_type === "image" ? (
                       <img
                         src={mediaPreview}
                         alt="Media preview"
@@ -417,7 +396,7 @@ const HighlightFormModal = ({
                     }`}
                   >
                     <div className="w-10 h-10 flex items-center rounded-full justify-center bg-white/5 text-descText">
-                      {form.mediaType === "image" ? (
+                      {form.media_type === "image" ? (
                         <FaImage size={17} />
                       ) : (
                         <FaVideo size={17} />
@@ -430,7 +409,7 @@ const HighlightFormModal = ({
                       </span>
 
                       <span className="font-montserrat text-[10px] text-descText2">
-                        {form.mediaType === "image"
+                        {form.media_type === "image"
                           ? "PNG, JPG, WEBP"
                           : "MP4, WEBM, MOV"}
                       </span>
@@ -441,10 +420,10 @@ const HighlightFormModal = ({
 
               {/* VIDEO THUMBNAIL */}
 
-              {form.mediaType === "video" && (
+              {form.media_type === "video" && (
                 <div className="flex flex-col gap-1.5">
                   <label className="font-montserrat text-[11px] tracking-wider text-descText2">
-                    VIDEO THUMBNAIL
+                    VIDEO THUMBNAIL (OPTIONAL)
                   </label>
 
                   <input
@@ -530,9 +509,20 @@ const HighlightFormModal = ({
 
               <button
                 type="submit"
-                className="bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition"
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-2 bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isEditing ? "SAVE CHANGES" : "ADD HIGHLIGHT"}
+                {isSubmitting && (
+                  <FaSpinner size={12} className="animate-spin" />
+                )}
+
+                {isSubmitting
+                  ? isEditing
+                    ? "SAVING..."
+                    : "ADDING..."
+                  : isEditing
+                    ? "SAVE CHANGES"
+                    : "ADD HIGHLIGHT"}
               </button>
             </div>
           </motion.form>

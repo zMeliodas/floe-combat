@@ -1,3 +1,4 @@
+import type { HighlightFormValues } from "./admintypes";
 import type { Product } from "./types";
 
 export type ReviewProps = {
@@ -32,4 +33,12 @@ export type PaginationProps = {
 export type ProductPreviewModalProps = {
   product: Product | null;
   onClose: () => void;
+};
+
+export type HighlightFormModalProps = {
+  isOpen: boolean;
+  editingHighlight: Highlight | null;
+  isSubmitting: boolean;
+  onClose: () => void;
+  onSubmit: (values: HighlightFormValues) => void;
 };

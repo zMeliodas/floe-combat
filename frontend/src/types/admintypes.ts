@@ -10,9 +10,9 @@ export type ProductFormValues = {
 export type HighlightFormValues = {
   title: string;
   athlete: string;
-  mediaType: "image" | "video";
-  mediaUrl: string;
-  thumbnail?: string;
+  media_type: "image" | "video";
+  mediaFile: File | null;
+  thumbnailFile: File | null;
 };
 
 export type ReviewFormValues = {

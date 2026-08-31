@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaPlus,
   FaPen,
@@ -13,46 +13,16 @@ import DeleteConfirmModal from "../common/DeleteConfirmModal";
 import HighlightImagePreviewModal from "../../components/common/HighlightImagePreviewModal";
 import VideoPreviewModal from "../../components/common/VideoPreviewModal";
 import type { HighlightFormValues } from "../../../types/admintypes";
-
-import videow from "../../../assets/videos/floe-highlight1.mp4";
-import videow2 from "../../../assets/videos/floe-highlight2.mp4";
-import videow3 from "../../../assets/videos/FloePH.mp4";
-import photosample from "../../../assets/images/floeimage.jpg";
-
-const initialHighlights: Highlight[] = [
-  {
-    id: 1,
-    title: "Valiant MMA",
-    athlete: "Jonathan Banzuelo",
-    mediaUrl: videow,
-    mediaType: "video",
-    thumbnail: photosample,
-  },
-  {
-    id: 2,
-    title: "Sprawl MMA",
-    athlete: "Bryant Calindas",
-    mediaUrl: videow2,
-    mediaType: "video",
-  },
-  {
-    id: 3,
-    title: "Berimbolo Setup",
-    athlete: "Carlos Reyes",
-    mediaUrl: videow3,
-    mediaType: "video",
-  },
-  {
-    id: 4,
-    title: "Competition Day",
-    athlete: "John Doe",
-    mediaType: "image",
-    mediaUrl: photosample,
-  },
-];
+import {
+  getHighlights,
+  createHighlight,
+  deleteHighlight,
+} from "../../../services/highlights.service";
 
 const AdminHighlights = () => {
-  const [highlights, setHighlights] = useState<Highlight[]>(initialHighlights);
+  const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
 
@@ -62,14 +32,38 @@ const AdminHighlights = () => {
   );
 
   const [deleteTarget, setDeleteTarget] = useState<Highlight | null>(null);
-
   const [previewImage, setPreviewImage] = useState<Highlight | null>(null);
-
   const [previewVideo, setPreviewVideo] = useState<Highlight | null>(null);
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filtered = highlights.filter((h) =>
     h.title.toLowerCase().includes(search.toLowerCase()),
   );
+
+  useEffect(() => {
+    const fetchHighlights = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+
+        const data = await getHighlights();
+
+        setHighlights(data);
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Could not fetch highlights.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHighlights();
+  }, []);
 
   const openAddForm = () => {
     setEditingHighlight(null);
@@ -86,37 +80,62 @@ const AdminHighlights = () => {
     setIsFormOpen(false);
   };
 
-  const handleSubmit = (values: HighlightFormValues) => {
-    if (editingHighlight) {
-      setHighlights((prev) =>
-        prev.map((h) =>
-          h.id === editingHighlight.id
-            ? {
-                ...h,
-                ...values,
-              }
-            : h,
-        ),
-      );
-    } else {
-      setHighlights((prev) => [
-        {
-          id: Date.now(),
-          ...values,
-        },
-        ...prev,
-      ]);
-    }
+  const handleSubmit = async (values: HighlightFormValues) => {
+    if (isSaving) return;
 
-    closeForm();
+    try {
+      setIsSaving(true);
+      setError("");
+
+      if (editingHighlight) {
+        // We'll connect update after create is confirmed working
+        return;
+      }
+
+      if (!values.mediaFile) {
+        return;
+      }
+
+      const newHighlight = await createHighlight({
+        title: values.title,
+        athlete: values.athlete,
+        media: values.mediaFile,
+        thumbnail: values.thumbnailFile ?? undefined,
+      });
+
+      setHighlights((prev) => [newHighlight, ...prev]);
+
+      closeForm();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not create highlight.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const confirmDelete = () => {
-    if (!deleteTarget) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget || isDeleting) return;
 
-    setHighlights((prev) => prev.filter((h) => h.id !== deleteTarget.id));
+    try {
+      setIsDeleting(true);
+      setError("");
 
-    setDeleteTarget(null);
+      await deleteHighlight(deleteTarget.id);
+
+      setHighlights((prev) =>
+        prev.filter((highlight) => highlight.id !== deleteTarget.id),
+      );
+
+      setDeleteTarget(null);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not delete highlight.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -158,7 +177,13 @@ const AdminHighlights = () => {
           <span className="text-right">ACTIONS</span>
         </div>
 
-        {filtered.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <p className="font-montserrat text-xs font-bold tracking-widest text-white/30">
+              LOADING HIGHLIGHTS...
+            </p>
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="flex flex-col divide-y divide-white/5">
             {filtered.map((highlight) => (
               <div
@@ -168,21 +193,27 @@ const AdminHighlights = () => {
                 <button
                   type="button"
                   onClick={() =>
-                    highlight.mediaType === "image"
+                    highlight.media_type === "image"
                       ? setPreviewImage(highlight)
                       : setPreviewVideo(highlight)
                   }
                   className="w-12 h-12 rounded-sm overflow-hidden bg-white/5 shrink-0 hover:ring-2 hover:ring-floesky/60 transition"
                 >
-                  {highlight.mediaType === "image" ? (
+                  {highlight.media_type === "image" ? (
                     <img
-                      src={highlight.mediaUrl}
+                      src={highlight.media_url}
                       alt={highlight.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : highlight.thumbnail_url ? (
+                    <img
+                      src={highlight.thumbnail_url}
+                      alt={`${highlight.title} thumbnail`}
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <video
-                      src={highlight.mediaUrl}
+                      src={highlight.media_url}
                       className="w-full h-full object-cover"
                       disablePictureInPicture
                       muted
@@ -201,14 +232,14 @@ const AdminHighlights = () => {
                 </div>
 
                 <div className="hidden sm:flex items-center gap-2">
-                  {highlight.mediaType === "video" ? (
+                  {highlight.media_type === "video" ? (
                     <FaVideo size={12} className="text-red-400" />
                   ) : (
                     <FaImage size={12} className="text-floesky" />
                   )}
 
                   <span className="font-montserrat text-[11px] tracking-wider text-descText2 uppercase">
-                    {highlight.mediaType}
+                    {highlight.media_type}
                   </span>
                 </div>
 
@@ -250,6 +281,7 @@ const AdminHighlights = () => {
       <HighlightFormModal
         isOpen={isFormOpen}
         editingHighlight={editingHighlight}
+        isSubmitting={isSaving}
         onClose={closeForm}
         onSubmit={handleSubmit}
       />
@@ -258,20 +290,21 @@ const AdminHighlights = () => {
         isOpen={deleteTarget !== null}
         title="DELETE HIGHLIGHT"
         itemName={deleteTarget?.title ?? ""}
+        isDeleting={isDeleting}
         onClose={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
       />
 
       <HighlightImagePreviewModal
         isOpen={previewImage !== null}
-        imageUrl={previewImage?.mediaUrl ?? ""}
+        imageUrl={previewImage?.media_url ?? ""}
         title={previewImage?.title}
         onClose={() => setPreviewImage(null)}
       />
 
       <VideoPreviewModal
         isOpen={previewVideo !== null}
-        videoUrl={previewVideo?.mediaUrl ?? ""}
+        videoUrl={previewVideo?.media_url ?? ""}
         title={previewVideo?.title}
         onClose={() => setPreviewVideo(null)}
       />

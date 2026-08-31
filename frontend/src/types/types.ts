@@ -1,21 +1,3 @@
-export type Highlight = {
-  id: number;
-  title: string;
-  athlete: string;
-  mediaType: "video" | "image";
-  mediaUrl: string;
-  thumbnail?: string;
-};
-
-export type Product = {
-  id: number;
-  title: string;
-  category: string;
-  description: string;
-  sizes: string[];
-  images: ProductImage[];
-};
-
 export interface Review {
   id: number;
   featured?: boolean;
@@ -29,6 +11,15 @@ export interface Review {
 }
 
 export type Theme = "light" | "dark";
+
+export type Product = {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  sizes: string[];
+  images: ProductImage[];
+};
 
 export type ProductImage = {
   id: number;
@@ -65,4 +56,39 @@ export type UpdateProductInput = {
   sizes: string[];
   images?: File[];
   deletedImageIds: number[];
+};
+
+export type Highlight = {
+  id: number;
+  title: string;
+  athlete: string;
+  media_type: "video" | "image";
+  media_url: string;
+  thumbnail_url: string | null;
+};
+
+export type HighlightResponse = {
+  success: boolean;
+  message: string;
+  result: Highlight;
+};
+
+export type HighlightsResponse = {
+  success: boolean;
+  message: string;
+  result: Highlight[];
+};
+
+export type CreateHighlightInput = {
+  title: string;
+  athlete: string;
+  media: File;
+  thumbnail?: File;
+};
+
+export type UpdateHighlightInput = {
+  title: string;
+  athlete: string;
+  media?: File;
+  thumbnail?: File;
 };

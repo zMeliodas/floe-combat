@@ -18,6 +18,8 @@ import { createHighlight } from "../service/highlight.service.js";
 
 import { createAdminActivity } from "../service/adminActivity.service.js";
 
+import { getHighlightVideoThumbnail } from "../utils/helper.js";
+
 const getHighlightsController = async (_req: Request, res: Response) => {
   try {
     const highlights = await getAllHighlights();
@@ -125,14 +127,24 @@ const createHighlightController = async (req: Request, res: Response) => {
       uploadedThumbnail = await uploadHighlightThumbnail(thumbnailFile.buffer);
     }
 
+    let thumbnailUrl: string | null = null;
+    let thumbnailPublicId: string | null = null;
+
+    if (uploadedThumbnail) {
+      thumbnailUrl = uploadedThumbnail.thumbnailUrl;
+      thumbnailPublicId = uploadedThumbnail.publicId;
+    } else if (mediaType === "video") {
+      thumbnailUrl = getHighlightVideoThumbnail(uploadedMedia.publicId);
+    }
+
     const highlight = await createHighlight({
       title: title.trim(),
       athlete: athlete.trim(),
       mediaType,
       mediaUrl: uploadedMedia.mediaUrl,
       mediaPublicId: uploadedMedia.publicId,
-      thumbnailUrl: uploadedThumbnail?.thumbnailUrl ?? null,
-      thumbnailPublicId: uploadedThumbnail?.publicId ?? null,
+      thumbnailUrl,
+      thumbnailPublicId,
     });
 
     try {
@@ -232,26 +244,72 @@ const updateHighlightController = async (req: Request, res: Response) => {
     }
 
     let mediaType = existingHighlight.media_type as "image" | "video";
+
     let mediaUrl = existingHighlight.media_url;
     let mediaPublicId = existingHighlight.media_public_id;
 
     let thumbnailUrl = existingHighlight.thumbnail_url;
     let thumbnailPublicId = existingHighlight.thumbnail_public_id;
 
+    let shouldDeleteOldThumbnail = false;
+
+    const newMediaType = mediaFile
+      ? mediaFile.mimetype.startsWith("video/")
+        ? "video"
+        : "image"
+      : mediaType;
+
+    if (thumbnailFile && newMediaType !== "video") {
+      res.status(400).json({
+        success: false,
+        message: "Thumbnail is only allowed for video highlights.",
+      });
+      return;
+    }
+
+
     if (mediaFile) {
-      mediaType = mediaFile.mimetype.startsWith("video/") ? "video" : "image";
+      mediaType = newMediaType;
 
       uploadedMedia = await uploadHighlightMedia(mediaFile.buffer, mediaType);
 
       mediaUrl = uploadedMedia.mediaUrl;
       mediaPublicId = uploadedMedia.publicId;
-    }
 
-    if (thumbnailFile) {
+
+      if (mediaType === "video") {
+        if (thumbnailFile) {
+
+          uploadedThumbnail = await uploadHighlightThumbnail(
+            thumbnailFile.buffer,
+          );
+
+          thumbnailUrl = uploadedThumbnail.thumbnailUrl;
+          thumbnailPublicId = uploadedThumbnail.publicId;
+        } else {
+
+          thumbnailUrl = getHighlightVideoThumbnail(uploadedMedia.publicId);
+
+          thumbnailPublicId = null;
+        }
+      } else {
+        thumbnailUrl = null;
+        thumbnailPublicId = null;
+      }
+
+      if (existingHighlight.thumbnail_public_id) {
+        shouldDeleteOldThumbnail = true;
+      }
+    } else if (thumbnailFile) {
+
       uploadedThumbnail = await uploadHighlightThumbnail(thumbnailFile.buffer);
 
       thumbnailUrl = uploadedThumbnail.thumbnailUrl;
       thumbnailPublicId = uploadedThumbnail.publicId;
+
+      if (existingHighlight.thumbnail_public_id) {
+        shouldDeleteOldThumbnail = true;
+      }
     }
 
     const updatedHighlight = await updateHighlight(id, {
@@ -279,7 +337,7 @@ const updateHighlightController = async (req: Request, res: Response) => {
       }
     }
 
-    if (uploadedThumbnail && existingHighlight.thumbnail_public_id) {
+    if (shouldDeleteOldThumbnail && existingHighlight.thumbnail_public_id) {
       try {
         await deleteHighlightThumbnail(existingHighlight.thumbnail_public_id);
       } catch (cleanupError) {

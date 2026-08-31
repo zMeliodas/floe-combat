@@ -2,72 +2,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { FaPlay, FaTimes, FaExpand } from "react-icons/fa";
 import type { Highlight } from "../../types/types";
-import videow from "../../assets/videos/floe-highlight1.mp4";
-import videow2 from "../../assets/videos/floe-highlight2.mp4";
-import videow3 from "../../assets/videos/FloePH.mp4";
-import photosample from "../../assets/images/floeimage.jpg";
 import Pagination from "../common/Pagination";
+import { getHighlights } from "../../services/highlights.service";
 
 const Highlights = () => {
-  const highlights: Highlight[] = [
-    {
-      id: 1,
-      title: "Valiant MMA",
-      athlete: "Jonathan Banzuelo",
-      mediaUrl: videow,
-      mediaType: "video",
-      thumbnail: photosample,
-    },
-    {
-      id: 2,
-      title: "Sprawl MMA",
-      athlete: "Bryant Calindas",
-      mediaUrl: videow2,
-      mediaType: "video",
-    },
-    {
-      id: 3,
-      title: "Berimbolo Setup",
-      athlete: "Carlos Reyes",
-      mediaUrl: videow3,
-      mediaType: "video",
-    },
-    {
-      id: 4,
-      title: "Competition Day",
-      athlete: "John Doe",
-      mediaType: "image",
-      mediaUrl: photosample,
-    },
-    {
-      id: 5,
-      title: "Competition Day",
-      athlete: "John Doe",
-      mediaType: "image",
-      mediaUrl: photosample,
-    },
-    {
-      id: 6,
-      title: "Competition Day",
-      athlete: "John Doe",
-      mediaType: "image",
-      mediaUrl: photosample,
-    },
-    {
-      id: 7,
-      title: "Competition Day",
-      athlete: "John Doe",
-      mediaType: "image",
-      mediaUrl: photosample,
-    },
-    {
-      id: 8,
-      title: "Competition Day",
-      athlete: "John Doe",
-      mediaType: "image",
-      mediaUrl: photosample,
-    },
-  ];
+  const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [selected, setSelected] = useState<Highlight | null>(null);
   const [isPortrait, setIsPortrait] = useState<boolean | null>(null);
@@ -88,11 +29,27 @@ const Highlights = () => {
   const emptySlots = itemsPerPage - currentHighlights.length;
 
   useEffect(() => {
-    document.body.style.overflow = selected ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    const fetchHighlights = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+
+        const data = await getHighlights();
+
+        setHighlights(data);
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Could not fetch highlights.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [selected]);
+
+    fetchHighlights();
+  }, []);
 
   const handleClose = () => {
     setSelected(null);
@@ -141,76 +98,103 @@ const Highlights = () => {
         </div>
 
         <div className="w-full max-w-7xl pb-28">
-          {/* Pagination is positioned relative ONLY to the media grid */}
           <div className="relative">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
-              {currentHighlights.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * i }}
-                  onClick={() => setSelected(item)}
-                  className="group relative aspect-video bg-white/5 border border-borderColor overflow-hidden cursor-pointer"
-                >
-                  {item.mediaType === "video" ? (
-                    item.thumbnail ? (
-                      <img
-                        src={item.thumbnail}
-                        alt={item.title}
-                        className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <video
-                        src={item.mediaUrl}
-                        className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                    )
-                  ) : (
-                    <img
-                      src={item.mediaUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+            {isLoading ? (
+              <div className="flex min-h-80 items-center justify-center">
+                <p className="font-montserrat text-xs font-bold tracking-widest text-white/30">
+                  LOADING HIGHLIGHTS...
+                </p>
+              </div>
+            ) : error ? (
+              <div className="flex min-h-80 items-center justify-center">
+                <p className="font-montserrat text-xs font-bold tracking-widest text-red-400">
+                  {error}
+                </p>
+              </div>
+            ) : highlights.length === 0 ? (
+              <div className="flex min-h-80 flex-col items-center justify-center gap-2">
+                <span className="font-archivo text-5xl font-bold text-white/10">
+                  0
+                </span>
+
+                <p className="font-montserrat text-xs font-bold tracking-widest text-white/25">
+                  NO HIGHLIGHTS YET
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+                  {currentHighlights.map((item, i) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 * i }}
+                      onClick={() => setSelected(item)}
+                      className="group relative aspect-video bg-white/5 border border-borderColor overflow-hidden cursor-pointer"
+                    >
+                      {item.media_type === "video" ? (
+                        item.thumbnail_url ? (
+                          <img
+                            src={item.thumbnail_url}
+                            alt={item.title}
+                            className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <video
+                            src={item.media_url}
+                            className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                        )
+                      ) : (
+                        <img
+                          src={item.media_url}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                      )}
+
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        {item.media_type === "video" ? (
+                          <FaPlay className="w-8 h-8 sm:w-10 sm:h-10 text-descText drop-shadow-lg" />
+                        ) : (
+                          <FaExpand className="w-8 h-8 sm:w-10 sm:h-10 text-descText drop-shadow-lg" />
+                        )}
+                      </div>
+
+                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-linear-to-t from-black/80 to-transparent">
+                        <h3 className="font-archivo text-base sm:text-lg font-bold tracking-tight">
+                          {item.title}
+                        </h3>
+
+                        <p className="text-white/60 font-montserrat text-xs tracking-widest">
+                          {item.athlete.toUpperCase()}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {Array.from({ length: emptySlots }, (_, index) => (
+                    <div
+                      key={`empty-${index}`}
+                      className="invisible aspect-video"
+                      aria-hidden="true"
                     />
-                  )}
+                  ))}
+                </div>
 
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                    {item.mediaType === "video" ? (
-                      <FaPlay className="w-8 h-8 sm:w-10 sm:h-10 text-descText drop-shadow-lg" />
-                    ) : (
-                      <FaExpand className="w-8 h-8 sm:w-10 sm:h-10 text-descText drop-shadow-lg" />
-                    )}
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-linear-to-t from-black/80 to-transparent">
-                    <h3 className="font-archivo text-base sm:text-lg font-bold tracking-tight">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-white/60 font-montserrat text-xs tracking-widest">
-                      {item.athlete.toUpperCase()}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-
-              {Array.from({ length: emptySlots }, (_, index) => (
-                <div
-                  key={`empty-${index}`}
-                  className="invisible aspect-video"
-                  aria-hidden="true"
-                />
-              ))}
-            </div>
-
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -246,10 +230,10 @@ const Highlights = () => {
                 <FaTimes className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
 
-              {selected.mediaType === "video" ? (
+              {selected.media_type === "video" ? (
                 <video
                   key={selected.id}
-                  src={selected.mediaUrl}
+                  src={selected.media_url}
                   className="w-full"
                   controls
                   autoPlay
@@ -261,7 +245,7 @@ const Highlights = () => {
               ) : (
                 <img
                   key={selected.id}
-                  src={selected.mediaUrl}
+                  src={selected.media_url}
                   alt={selected.title}
                   className="w-full object-contain"
                   onLoad={handleImageLoad}

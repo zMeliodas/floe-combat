@@ -19,6 +19,7 @@ export type DeleteConfirmModalProps = {
   isOpen: boolean;
   title?: string;
   itemName: string;
+  isDeleting: boolean;
   onClose: () => void;
   onConfirm: () => void;
 };
@@ -33,6 +34,7 @@ export type ImagePreviewModalProps = {
 export type HighlightFormModalProps = {
   isOpen: boolean;
   editingHighlight: Highlight | null;
+  isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (values: HighlightFormValues) => void;
 };
