@@ -10,8 +10,29 @@ import {
 } from "../../services/reviews.service";
 import { getProducts } from "../../services/products.service";
 import SubmitReviewModal from "../common/SubmitReviewModal";
+import FilterButton from "../common/FilterButton";
 
 const filters = ["ALL", "5", "4", "3", "2", "1"];
+
+const fadeInUp = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+  },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
 
 const Reviews = () => {
   const [reviewList, setReviewList] = useState<Review[]>([]);
@@ -120,32 +141,72 @@ const Reviews = () => {
       <div className="min-h-screen flex flex-col items-center pt-20 sm:pt-24 px-6 sm:px-10 text-white border border-borderColor pb-16 sm:pb-20">
         <div className="flex flex-col sm:flex-row justify-between items-start max-w-7xl w-full py-10 sm:py-16 lg:py-20 gap-6">
           <div className="flex flex-col gap-2">
-            <motion.p className="text-floesky font-montserrat text-xs font-bold tracking-widest">
+            <motion.p
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{
+                duration: 0.5,
+                delay: 0.1,
+                ease: "easeOut",
+              }}
+              className="text-floesky font-montserrat text-xs font-bold tracking-widest"
+            >
               COMMUNITY VOICES
             </motion.p>
 
-            <motion.h1 className="text-white text-5xl sm:text-7xl md:text-8xl lg:text-[8rem] font-archivo tracking-tighter leading-none">
+            <motion.h1
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{
+                duration: 0.5,
+                delay: 0.2,
+                ease: "easeOut",
+              }}
+              className="text-white text-5xl sm:text-7xl md:text-8xl lg:text-[8rem] font-archivo tracking-tighter leading-none"
+            >
               ON THE
               <br />
               MAT
             </motion.h1>
           </div>
 
-          <motion.div className="flex flex-col items-end gap-2 sm:gap-1">
-            <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 sm:gap-1">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{
+                duration: 0.5,
+                delay: 0.3,
+                ease: "easeOut",
+              }}
+              className="flex flex-col items-end gap-2 sm:gap-1"
+            >
               <StarRating rating={average} />
               <span className="font-archivo text-3xl font-bold">
                 {average.toFixed(1)}
               </span>
-            </div>
+            </motion.div>
 
             <span className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
               {approvedReviews.length} REVIEWS
             </span>
-          </motion.div>
+          </div>
         </div>
 
-        <div className="w-full max-w-7xl flex flex-col items-end gap-2 pb-4">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          transition={{
+            duration: 0.5,
+            delay: 0.35,
+            ease: "easeOut",
+          }}
+          className="w-full max-w-7xl flex flex-col items-end gap-2 pb-4"
+        >
           <button
             onClick={() => {
               setSubmitError("");
@@ -177,21 +238,18 @@ const Reviews = () => {
               </motion.p>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
 
         <div className="flex gap-2 sm:gap-4 pb-8 max-w-7xl w-full border-t border-borderColor py-6 sm:py-8 flex-wrap">
-          {filters.map((f) => (
-            <button
+          {filters.map((f, index) => (
+            <FilterButton
               key={f}
+              label={f}
+              icon={<FaStar />}
+              isActive={filter === f}
               onClick={() => setFilter(f)}
-              className={`flex items-center gap-2 border font-montserrat font-bold text-sm px-4 py-2 transition ${
-                filter === f
-                  ? "border-floesky text-floesky bg-floesky/10"
-                  : "border-borderColor text-descText2 hover:text-floesky"
-              }`}
-            >
-              {f} <FaStar />
-            </button>
+              delay={index * 0.1}
+            />
           ))}
         </div>
 
@@ -208,10 +266,21 @@ const Reviews = () => {
             </p>
           </div>
         ) : sortedFiltered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 max-w-7xl w-full border-b border-borderColor">
+          <motion.div
+            key={filter}
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 max-w-7xl w-full border-b border-borderColor"
+          >
             {sortedFiltered.map((review) => (
               <motion.div
                 key={review.id}
+                variants={fadeInUp}
+                transition={{
+                  duration: 0.4,
+                  ease: "easeOut",
+                }}
                 className={`relative flex flex-col gap-3 p-5 sm:p-8 border-l border-t transition ${
                   review.featured
                     ? "border-floesky/40 bg-floesky/5"
@@ -252,7 +321,7 @@ const Reviews = () => {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="flex min-h-60 items-center justify-center w-full max-w-7xl">
             <p className="font-montserrat text-xs font-bold tracking-widest text-white/25">

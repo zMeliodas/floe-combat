@@ -82,7 +82,6 @@ const ProductPreviewModal = ({
           onClick={(e) => e.stopPropagation()}
           className="relative grid w-full max-w-6xl max-h-[90vh] overflow-y-auto border border-borderColor bg-black lg:grid-cols-[1.35fr_0.65fr]"
         >
-          {/* CLOSE */}
           <button
             type="button"
             onClick={onClose}
@@ -92,10 +91,9 @@ const ProductPreviewModal = ({
             <FaTimes size={15} />
           </button>
 
-          {/* IMAGE SECTION */}
           <div className="flex min-w-0 flex-col border-b border-borderColor lg:border-b-0 lg:border-r">
             {currentImage && (
-              <div className="relative flex min-h-[400px] items-center justify-center bg-black sm:min-h-[520px] lg:min-h-[650px]">
+              <div className="relative flex min-h-100 items-center justify-center bg-black sm:min-h-130 lg:min-h-162.5">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentImage.id}
@@ -137,7 +135,6 @@ const ProductPreviewModal = ({
               </div>
             )}
 
-            {/* THUMBNAILS */}
             {product.images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto border-t border-borderColor p-3">
                 {product.images.map((image, index) => (
@@ -162,7 +159,6 @@ const ProductPreviewModal = ({
             )}
           </div>
 
-          {/* PRODUCT INFO */}
           <div className="flex flex-col justify-center gap-5 p-6 sm:p-8 lg:p-10">
             <span className="font-montserrat text-xs font-bold tracking-widest text-floesky">
               {product.category}

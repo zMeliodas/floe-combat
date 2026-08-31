@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { HighlightFormValues } from "./admintypes";
 import type { Product } from "./types";
 
@@ -64,4 +65,12 @@ export type SubmitReviewModalProps = {
   error?: string;
   onClose: () => void;
   onSubmit: (values: SubmitReviewFormValues) => void;
+};
+
+export type FilterButtonProps = {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+  delay?: number;
+  icon?: ReactNode;
 };

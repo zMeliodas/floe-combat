@@ -39,6 +39,7 @@ const AdminProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
@@ -139,9 +140,10 @@ const AdminProducts = () => {
   };
 
   const confirmDelete = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget || isDeleting) return;
 
     try {
+      setIsDeleting(true);
       setError("");
 
       await deleteProduct(deleteTarget.id);
@@ -155,6 +157,8 @@ const AdminProducts = () => {
       setError(
         error instanceof Error ? error.message : "Could not delete product.",
       );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -198,101 +202,113 @@ const AdminProducts = () => {
         </button>
       </div>
 
-      <div className="border border-borderColor bg-white/2 overflow-hidden">
-        <div className="hidden sm:grid grid-cols-[64px_1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-borderColor font-montserrat text-[11px] tracking-[2px] text-descText">
-          <span></span>
-          <span>PRODUCT</span>
-          <span>CATEGORY</span>
-          <span>SIZES</span>
-          <span className="text-right">ACTIONS</span>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <p className="font-montserrat text-xs font-bold tracking-widest text-white/30">
+            LOADING PRODUCTS...
+          </p>
         </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-16">
+          <p className="font-montserrat text-xs text-red-400">{error}</p>
+        </div>
+      ) : (
+        <div className="border border-borderColor bg-white/2 overflow-hidden">
+          <div className="hidden sm:grid grid-cols-[64px_1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-borderColor font-montserrat text-[11px] tracking-[2px] text-descText">
+            <span></span>
+            <span>PRODUCT</span>
+            <span>CATEGORY</span>
+            <span>SIZES</span>
+            <span className="text-right">ACTIONS</span>
+          </div>
 
-        {filtered.length > 0 ? (
-          <div className="flex flex-col divide-y divide-white/5">
-            {filtered.map((product) => (
-              <div
-                key={product.id}
-                className="grid grid-cols-[64px_1fr_auto] sm:grid-cols-[64px_1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 items-center"
-              >
-                <button
-                  type="button"
-                  onClick={() =>
-                    product.images.length > 0 && setPreviewProduct(product)
-                  }
-                  disabled={product.images.length === 0}
-                  aria-label={`Preview ${product.title} image`}
-                  className="w-12 h-12 rounded-sm overflow-hidden bg-white/5 shrink-0 disabled:cursor-default enabled:cursor-zoom-in enabled:hover:ring-2 enabled:hover:ring-floesky/60 transition"
+          {filtered.length > 0 ? (
+            <div className="flex flex-col divide-y divide-white/5">
+              {filtered.map((product) => (
+                <div
+                  key={product.id}
+                  className="grid grid-cols-[64px_1fr_auto] sm:grid-cols-[64px_1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 items-center"
                 >
-                  {product.images.length > 0 ? (
-                    <img
-                      src={getPrimaryImageUrl(product)}
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/15">
-                      <FaImage size={14} />
-                    </div>
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      product.images.length > 0 && setPreviewProduct(product)
+                    }
+                    disabled={product.images.length === 0}
+                    aria-label={`Preview ${product.title} image`}
+                    className="w-12 h-12 rounded-sm overflow-hidden bg-white/5 shrink-0 disabled:cursor-default enabled:cursor-zoom-in enabled:hover:ring-2 enabled:hover:ring-floesky/60 transition"
+                  >
+                    {product.images.length > 0 ? (
+                      <img
+                        src={getPrimaryImageUrl(product)}
+                        alt={product.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/15">
+                        <FaImage size={14} />
+                      </div>
+                    )}
+                  </button>
 
-                <div className="min-w-0 flex flex-col gap-0.5">
-                  <span className="font-montserrat text-sm font-bold text-white truncate">
-                    {product.title}
-                  </span>
-                  <span className="font-montserrat text-xs text-descText2 truncate sm:hidden">
+                  <div className="min-w-0 flex flex-col gap-0.5">
+                    <span className="font-montserrat text-sm font-bold text-white truncate">
+                      {product.title}
+                    </span>
+                    <span className="font-montserrat text-xs text-descText2 truncate sm:hidden">
+                      {product.category}
+                    </span>
+                    <p className="hidden sm:block font-montserrat text-xs text-descText2 truncate max-w-xs">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  <span className="hidden sm:inline font-montserrat text-[11px] tracking-wider text-floesky">
                     {product.category}
                   </span>
-                  <p className="hidden sm:block font-montserrat text-xs text-descText2 truncate max-w-xs">
-                    {product.description}
-                  </p>
-                </div>
 
-                <span className="hidden sm:inline font-montserrat text-[11px] tracking-wider text-floesky">
-                  {product.category}
-                </span>
+                  <div className="hidden sm:flex flex-wrap gap-1">
+                    {product.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="text-[10px] px-1.5 py-0.5 border border-borderColor text-descText2"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
 
-                <div className="hidden sm:flex flex-wrap gap-1">
-                  {product.sizes.map((size) => (
-                    <span
-                      key={size}
-                      className="text-[10px] px-1.5 py-0.5 border border-borderColor text-descText2"
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => openEditForm(product)}
+                      aria-label={`Edit ${product.title}`}
+                      className="w-8 h-8 flex items-center justify-center rounded-sm text-descText2 hover:text-floesky hover:bg-white/5 transition"
                     >
-                      {size}
-                    </span>
-                  ))}
+                      <FaPen size={12} />
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(product)}
+                      aria-label={`Delete ${product.title}`}
+                      className="w-8 h-8 flex items-center justify-center rounded-sm text-descText2 hover:text-red-400 hover:bg-white/5 transition"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
                 </div>
-
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => openEditForm(product)}
-                    aria-label={`Edit ${product.title}`}
-                    className="w-8 h-8 flex items-center justify-center rounded-sm text-descText2 hover:text-floesky hover:bg-white/5 transition"
-                  >
-                    <FaPen size={12} />
-                  </button>
-                  <button
-                    onClick={() => setDeleteTarget(product)}
-                    aria-label={`Delete ${product.title}`}
-                    className="w-8 h-8 flex items-center justify-center rounded-sm text-descText2 hover:text-red-400 hover:bg-white/5 transition"
-                  >
-                    <FaTrash size={12} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2 py-16">
-            <span className="text-white/10 font-archivo text-5xl font-bold">
-              0
-            </span>
-            <p className="text-white/25 font-montserrat text-xs font-bold tracking-widest">
-              NO PRODUCTS FOUND
-            </p>
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2 py-16">
+              <span className="text-white/10 font-archivo text-5xl font-bold">
+                0
+              </span>
+              <p className="text-white/25 font-montserrat text-xs font-bold tracking-widest">
+                NO PRODUCTS FOUND
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       <ProductFormModal
         isOpen={isFormOpen}
@@ -309,9 +325,13 @@ const AdminProducts = () => {
         isOpen={deleteTarget !== null}
         title="DELETE PRODUCT"
         itemName={deleteTarget?.title ?? ""}
-        onClose={() => setDeleteTarget(null)}
+        isDeleting={isDeleting}
+        onClose={() => {
+          if (isDeleting) return;
+
+          setDeleteTarget(null);
+        }}
         onConfirm={confirmDelete}
-        isDeleting={isSaving}
       />
 
       <ImagePreviewModal
