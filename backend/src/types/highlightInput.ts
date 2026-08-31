@@ -8,4 +8,12 @@ export type CreateHighlightInput = {
   thumbnailPublicId?: string | null;
 };
 
-export type UpdateHighlightInput = CreateHighlightInput;
+export type UpdateHighlightInput = {
+  title: string;
+  athlete: string;
+  mediaType?: "video" | "image";
+  mediaUrl?: string;
+  mediaPublicId?: string;
+  thumbnailUrl?: string | null;
+  thumbnailPublicId?: string | null;
+};

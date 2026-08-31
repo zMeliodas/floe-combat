@@ -155,7 +155,6 @@ const AdminHighlights = () => {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* TOOLBAR */}
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative flex-1 max-w-sm">

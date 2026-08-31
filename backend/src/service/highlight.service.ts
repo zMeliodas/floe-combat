@@ -66,9 +66,7 @@ const createHighlight = async (
   return highlight;
 };
 
-const getHighlightById = async (
-  id: number,
-): Promise<Highlight | null> => {
+const getHighlightById = async (id: number): Promise<Highlight | null> => {
   const result = await pool.query<Highlight>(
     `
       SELECT ${highlightColumns}
@@ -91,11 +89,11 @@ const updateHighlight = async (
       SET
         title = $1,
         athlete = $2,
-        media_type = $3,
-        media_url = $4,
-        media_public_id = $5,
-        thumbnail_url = $6,
-        thumbnail_public_id = $7,
+        media_type = COALESCE($3, media_type),
+        media_url = COALESCE($4, media_url),
+        media_public_id = COALESCE($5, media_public_id),
+        thumbnail_url = COALESCE($6, thumbnail_url),
+        thumbnail_public_id = COALESCE($7, thumbnail_public_id),
         updated_at = NOW()
       WHERE id = $8
       RETURNING ${highlightColumns}
@@ -103,9 +101,9 @@ const updateHighlight = async (
     [
       input.title,
       input.athlete,
-      input.mediaType,
-      input.mediaUrl,
-      input.mediaPublicId,
+      input.mediaType ?? null,
+      input.mediaUrl ?? null,
+      input.mediaPublicId ?? null,
       input.thumbnailUrl ?? null,
       input.thumbnailPublicId ?? null,
       id,
@@ -115,9 +113,7 @@ const updateHighlight = async (
   return result.rows[0] ?? null;
 };
 
-const deleteHighlightById = async (
-  id: number,
-): Promise<Highlight | null> => {
+const deleteHighlightById = async (id: number): Promise<Highlight | null> => {
   const result = await pool.query<Highlight>(
     `
       DELETE FROM highlights
