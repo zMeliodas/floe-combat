@@ -37,7 +37,7 @@ function AppContent() {
   const location = useLocation();
 
   const isAdminPage =
-    location.pathname.startsWith("/admin") || location.pathname === "/login";
+    location.pathname.startsWith("/admin");
 
   return (
     <>
