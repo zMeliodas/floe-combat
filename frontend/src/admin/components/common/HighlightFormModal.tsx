@@ -201,11 +201,27 @@ const HighlightFormModal = ({
 
     if (isSubmitting) return;
 
+    setFileError("");
+
     if (!form.title.trim() || !form.athlete.trim()) {
       return;
     }
 
     if (!editingHighlight && !form.mediaFile) {
+      setFileError("Media file is required.");
+      return;
+    }
+
+    if (
+      editingHighlight &&
+      form.media_type !== editingHighlight.media_type &&
+      !form.mediaFile
+    ) {
+      setFileError(
+        `Please upload a new ${
+          form.media_type === "image" ? "image" : "video"
+        }.`,
+      );
       return;
     }
 
@@ -247,7 +263,6 @@ const HighlightFormModal = ({
             onSubmit={handleSubmit}
             className="my-auto flex w-full max-w-lg max-h-[90vh] flex-col border border-white/10 bg-black"
           >
-            {/* HEADER */}
             <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6">
               <h2 className="font-montserrat text-sm font-bold tracking-[2px] text-white">
                 {isEditing ? "EDIT HIGHLIGHT" : "ADD HIGHLIGHT"}
@@ -263,11 +278,7 @@ const HighlightFormModal = ({
               </button>
             </div>
 
-            {/* FORM BODY */}
-
             <div className="custom-scroll flex flex-col gap-5 px-6 py-5 overflow-y-auto">
-              {/* TITLE */}
-
               <div className="flex flex-col gap-1.5">
                 <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   TITLE
@@ -288,8 +299,6 @@ const HighlightFormModal = ({
                 />
               </div>
 
-              {/* ATHLETE */}
-
               <div className="flex flex-col gap-1.5">
                 <label className="font-montserrat text-[11px] tracking-wider text-descText">
                   ATHLETE
@@ -309,8 +318,6 @@ const HighlightFormModal = ({
                   className="w-full bg-white/2 border border-borderColor px-3 py-2.5 font-montserrat text-sm text-white placeholder:text-descText2 outline-none focus:border-floesky/40 transition"
                 />
               </div>
-
-              {/* MEDIA TYPE */}
 
               <div className="flex flex-col gap-1.5">
                 <label className="font-montserrat text-[11px] tracking-wider text-descText">
@@ -346,11 +353,13 @@ const HighlightFormModal = ({
                 </div>
               </div>
 
-              {/* MEDIA UPLOAD */}
-
               <div className="flex flex-col gap-1.5">
                 <label className="font-montserrat text-[11px] tracking-wider text-descText">
-                  {form.media_type === "image" ? "IMAGE" : "VIDEO"}
+                  {isEditing
+                    ? `REPLACE ${form.media_type === "image" ? "IMAGE" : "VIDEO"} (OPTIONAL)`
+                    : form.media_type === "image"
+                      ? "IMAGE"
+                      : "VIDEO"}
                 </label>
 
                 <input
@@ -387,14 +396,16 @@ const HighlightFormModal = ({
                         CHANGE
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={removeMedia}
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white font-montserrat text-[10px] tracking-wider px-3 py-2 hover:bg-red-500/60 transition"
-                      >
-                        <FaTrash size={11} />
-                        REMOVE
-                      </button>
+                      {mediaPreview.startsWith("blob:") && (
+                        <button
+                          type="button"
+                          onClick={removeMedia}
+                          className="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white font-montserrat text-[10px] tracking-wider px-3 py-2 hover:bg-red-500/60 transition"
+                        >
+                          <FaTrash size={11} />
+                          REMOVE
+                        </button>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -434,8 +445,6 @@ const HighlightFormModal = ({
                   </div>
                 )}
               </div>
-
-              {/* VIDEO THUMBNAIL */}
 
               {form.media_type === "video" && (
                 <div className="flex flex-col gap-1.5">
