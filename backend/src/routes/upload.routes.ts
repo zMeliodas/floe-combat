@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { uploadImage } from "../middleware/upload.middleware.js";
 import { uploadProductImage } from "../service/cloudinary.service.js";
+import authMiddleware from "../middleware/auth.middleware.js";
+import { createUploadSignatureController } from "../controller/upload.controller.js";
 
 const router = Router();
 
@@ -26,5 +28,7 @@ router.post("/images", uploadImage.single("image"), async (req, res) => {
     });
   }
 });
+
+router.post("/signature", authMiddleware, createUploadSignatureController);
 
 export default router;
