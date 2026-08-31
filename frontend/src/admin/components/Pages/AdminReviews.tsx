@@ -508,6 +508,18 @@ const AdminReviews = () => {
       />
 
       <DeleteConfirmModal
+        isOpen={deleteTarget !== null}
+        title="DELETE REVIEW"
+        itemName={deleteTarget?.author ?? ""}
+        isDeleting={isDeleting}
+        onClose={() => {
+          if (isDeleting) return;
+          setDeleteTarget(null);
+        }}
+        onConfirm={confirmDelete}
+      />
+
+      <DeleteConfirmModal
         isOpen={rejectTarget !== null}
         title="REJECT REVIEW"
         itemName={rejectTarget?.author ?? ""}
