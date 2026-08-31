@@ -24,6 +24,7 @@ const ProductFormModal = ({
   onClose,
   onSubmit,
   isSubmitting,
+  error,
 }: ProductFormModalProps) => {
   const [form, setForm] = useState<ProductFormValues>(emptyForm);
   const [isDragging, setIsDragging] = useState(false);
@@ -31,6 +32,7 @@ const ProductFormModal = ({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const objectUrlsRef = useRef<string[]>([]);
+  const [fileError, setFileError] = useState("");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -68,22 +70,45 @@ const ProductFormModal = ({
   }, [isOpen, editingProduct, categories]);
 
   useEffect(() => {
-    return () => {
-      objectUrlsRef.current.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, []);
+    if (!isOpen) return;
+
+    setFileError("");
+
+    // existing code...
+  }, [isOpen, editingProduct, categories]);
 
   const handleFileSelect = (files: File[]) => {
+    setFileError("");
+
     const validFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    const invalidFiles = files.filter(
+      (file) => !file.type.startsWith("image/"),
+    );
+
+    if (invalidFiles.length > 0) {
+      setFileError("Only image files are allowed.");
+    }
+
+    if (validFiles.length === 0) return;
 
     const availableSlots =
       MAX_PRODUCT_IMAGES - existingImages.length - form.images.length;
 
-    const selectedFiles = validFiles.slice(0, availableSlots);
+    if (availableSlots <= 0) {
+      setFileError(`You can upload a maximum of ${MAX_PRODUCT_IMAGES} images.`);
+      return;
+    }
 
-    if (selectedFiles.length === 0) return;
+    if (validFiles.length > availableSlots) {
+      setFileError(
+        `You can only add ${availableSlots} more ${
+          availableSlots === 1 ? "image" : "images"
+        }.`,
+      );
+    }
+
+    const selectedFiles = validFiles.slice(0, availableSlots);
 
     const urls = selectedFiles.map((file) => URL.createObjectURL(file));
 
@@ -354,7 +379,8 @@ const ProductFormModal = ({
                     </span>
 
                     <span className="font-montserrat text-[10px] text-floesky">
-                      {existingImages.length + form.images.length}/{MAX_PRODUCT_IMAGES}
+                      {existingImages.length + form.images.length}/
+                      {MAX_PRODUCT_IMAGES}
                     </span>
                   </div>
                 )}
@@ -390,6 +416,14 @@ const ProductFormModal = ({
                 )}
               </div>
             </div>
+
+            {(fileError || error) && (
+              <div className="mx-4 mb-4 border border-red-500/20 bg-red-500/10 px-4 py-3 sm:mx-6">
+                <p className="font-montserrat text-[11px] leading-relaxed text-red-400">
+                  {fileError || error}
+                </p>
+              </div>
+            )}
 
             <div className="flex items-center justify-end gap-1.5 border-t border-white/5 px-4 py-4 sm:gap-3 sm:px-6">
               <button

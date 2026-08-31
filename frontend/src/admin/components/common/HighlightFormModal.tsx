@@ -23,6 +23,7 @@ const HighlightFormModal = ({
   isOpen,
   editingHighlight,
   isSubmitting,
+  error,
   onClose,
   onSubmit,
 }: HighlightFormModalProps) => {
@@ -37,8 +38,12 @@ const HighlightFormModal = ({
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
+  const [fileError, setFileError] = useState("");
+
   useEffect(() => {
     if (!isOpen) return;
+
+    setFileError("");
 
     setForm({
       title: editingHighlight?.title ?? "",
@@ -63,9 +68,16 @@ const HighlightFormModal = ({
   const handleMediaFile = (file?: File) => {
     if (!file) return;
 
+    setFileError("");
+
     const expectedType = form.media_type === "image" ? "image/" : "video/";
 
     if (!file.type.startsWith(expectedType)) {
+      setFileError(
+        form.media_type === "image"
+          ? "Please upload an image file."
+          : "Please upload a video file.",
+      );
       return;
     }
 
@@ -88,7 +100,10 @@ const HighlightFormModal = ({
   const handleThumbnailFile = (file?: File) => {
     if (!file) return;
 
+    setFileError("");
+
     if (!file.type.startsWith("image/")) {
+      setFileError("Video thumbnail must be an image file.");
       return;
     }
 
@@ -167,6 +182,8 @@ const HighlightFormModal = ({
   };
 
   const handleMediaTypeChange = (mediaType: "image" | "video") => {
+    setFileError("");
+
     removeMedia();
 
     setForm((prev) => ({
@@ -496,7 +513,13 @@ const HighlightFormModal = ({
               )}
             </div>
 
-            {/* FOOTER */}
+            {(fileError || error) && (
+              <div className="mx-4 mb-4 border border-red-500/20 bg-red-500/10 px-4 py-3 sm:mx-6">
+                <p className="font-montserrat text-[11px] leading-relaxed text-red-400">
+                  {fileError || error}
+                </p>
+              </div>
+            )}
 
             <div className="flex items-center justify-end gap-1.5 border-t border-white/5 px-4 py-4 sm:gap-3 sm:px-6">
               <button

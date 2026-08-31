@@ -1,22 +1,25 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { FaTimes, FaStar, FaRegStar } from "react-icons/fa";
+import { FaTimes, FaStar, FaRegStar, FaSpinner } from "react-icons/fa";
 import type { ReviewFormValues } from "../../../types/admintypes";
 import type { ReviewFormModalProps } from "../../../types/adminprops";
 
 const emptyForm: ReviewFormValues = {
   author: "",
   role: "",
-  design: "",
+  product_id: null,
+  product_name: "",
   rating: 5,
-  text: "",
+  review_text: "",
   featured: false,
 };
 
 const ReviewFormModal = ({
   isOpen,
   editingReview,
-  designOptions,
+  products,
+  isSubmitting,
+  error,
   onClose,
   onSubmit,
 }: ReviewFormModalProps) => {
@@ -29,19 +32,32 @@ const ReviewFormModal = ({
       setForm({
         author: editingReview.author,
         role: editingReview.role,
-        design: editingReview.design,
+        product_id: editingReview.product_id,
+        product_name: editingReview.product_name,
         rating: editingReview.rating,
-        text: editingReview.text,
-        featured: editingReview.featured ?? false,
+        review_text: editingReview.review_text,
+        featured: editingReview.featured,
       });
     } else {
-      setForm({ ...emptyForm, design: designOptions[0] ?? "" });
-    }
-  }, [isOpen, editingReview, designOptions]);
+      const firstProduct = products[0];
 
-  const handleSubmit = (e: React.SubmitEvent) => {
+      setForm({
+        ...emptyForm,
+        product_id: firstProduct?.id ?? null,
+        product_name: firstProduct?.title ?? "",
+      });
+    }
+  }, [isOpen, editingReview, products]);
+
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!form.author.trim() || !form.text.trim()) return;
+
+    if (isSubmitting) return;
+
+    if (!form.author.trim() || !form.review_text.trim() || !form.product_name) {
+      return;
+    }
+
     onSubmit(form);
   };
 
@@ -114,18 +130,33 @@ const ReviewFormModal = ({
 
               <div className="flex flex-col gap-1.5">
                 <label className="font-montserrat text-[11px] tracking-wider text-white/40">
-                  DESIGN
+                  PRODUCT
                 </label>
+
                 <select
-                  value={form.design}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, design: e.target.value }))
-                  }
+                  value={form.product_id ?? ""}
+                  onChange={(e) => {
+                    const productId = Number(e.target.value);
+
+                    const selectedProduct = products.find(
+                      (product) => product.id === productId,
+                    );
+
+                    setForm((prev) => ({
+                      ...prev,
+                      product_id: selectedProduct?.id ?? null,
+                      product_name: selectedProduct?.title ?? "",
+                    }));
+                  }}
                   className="bg-white/2 border border-white/10 px-3 py-2.5 font-montserrat text-sm text-white/80 focus:outline-none focus:border-floesky/40"
                 >
-                  {designOptions.map((d) => (
-                    <option key={d} value={d} className="bg-black">
-                      {d}
+                  {products.map((product) => (
+                    <option
+                      key={product.id}
+                      value={product.id}
+                      className="bg-black"
+                    >
+                      {product.title}
                     </option>
                   ))}
                 </select>
@@ -159,9 +190,12 @@ const ReviewFormModal = ({
                 </label>
                 <textarea
                   required
-                  value={form.text}
+                  value={form.review_text}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, text: e.target.value }))
+                    setForm((f) => ({
+                      ...f,
+                      review_text: e.target.value,
+                    }))
                   }
                   rows={4}
                   placeholder="What did they say?"
@@ -184,6 +218,14 @@ const ReviewFormModal = ({
               </label>
             </div>
 
+            {error && (
+              <div className="mx-4 mb-4 border border-red-500/20 bg-red-500/10 px-4 py-3 sm:mx-6">
+                <p className="font-montserrat text-[11px] leading-relaxed text-red-400">
+                  {error}
+                </p>
+              </div>
+            )}
+
             <div className="flex items-center justify-end gap-1.5 px-4 py-4 sm:gap-3 sm:px-6 border-t border-white/5">
               <button
                 type="button"
@@ -194,10 +236,25 @@ const ReviewFormModal = ({
               </button>
               <button
                 type="submit"
-                disabled={!form.author.trim() || !form.text.trim()}
-                className="bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                disabled={
+                  isSubmitting ||
+                  !form.author.trim() ||
+                  !form.review_text.trim() ||
+                  !form.product_name
+                }
+                className="flex items-center justify-center gap-2 bg-floesky text-black font-montserrat font-bold text-xs px-5 py-2.5 tracking-wider rounded-sm hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                {isEditing ? "SAVE CHANGES" : "ADD REVIEW"}
+                {isSubmitting && (
+                  <FaSpinner size={12} className="animate-spin" />
+                )}
+
+                {isSubmitting
+                  ? isEditing
+                    ? "SAVING..."
+                    : "ADDING..."
+                  : isEditing
+                    ? "SAVE CHANGES"
+                    : "ADD REVIEW"}
               </button>
             </div>
           </motion.form>

@@ -66,16 +66,19 @@ const AdminHighlights = () => {
   }, []);
 
   const openAddForm = () => {
+    setError("");
     setEditingHighlight(null);
     setIsFormOpen(true);
   };
 
   const openEditForm = (highlight: Highlight) => {
+    setError("");
     setEditingHighlight(highlight);
     setIsFormOpen(true);
   };
 
   const closeForm = () => {
+    setError("");
     setEditingHighlight(null);
     setIsFormOpen(false);
   };
@@ -88,7 +91,6 @@ const AdminHighlights = () => {
       setError("");
 
       if (editingHighlight) {
-        // We'll connect update after create is confirmed working
         return;
       }
 
@@ -165,8 +167,6 @@ const AdminHighlights = () => {
           ADD HIGHLIGHT
         </button>
       </div>
-
-      {/* TABLE */}
 
       <div className="border border-borderColor bg-white/2 overflow-hidden">
         <div className="hidden sm:grid grid-cols-[64px_1.5fr_120px_1fr_auto] gap-4 px-5 py-3 border-b border-borderColor font-montserrat text-[11px] tracking-[2px] text-descText">
@@ -282,6 +282,7 @@ const AdminHighlights = () => {
         isOpen={isFormOpen}
         editingHighlight={editingHighlight}
         isSubmitting={isSaving}
+        error={error}
         onClose={closeForm}
         onSubmit={handleSubmit}
       />

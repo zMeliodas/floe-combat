@@ -13,6 +13,7 @@ export type ProductFormModalProps = {
   isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (values: ProductFormValues) => void;
+  error?: string;
 };
 
 export type DeleteConfirmModalProps = {
@@ -37,12 +38,15 @@ export type HighlightFormModalProps = {
   isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (values: HighlightFormValues) => void;
+  error?: string;
 };
 
 export type ReviewFormModalProps = {
   isOpen: boolean;
   editingReview: Review | null;
-  designOptions: string[];
+  products: Product[];
+  isSubmitting: boolean;
+  error?: string;
   onClose: () => void;
   onSubmit: (values: ReviewFormValues) => void;
 };

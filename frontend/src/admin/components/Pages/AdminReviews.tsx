@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaPlus,
   FaPen,
@@ -8,109 +8,38 @@ import {
   FaCheck,
   FaTimes,
 } from "react-icons/fa";
-import type { Review } from "../../../types/types";
+import type { Product, Review } from "../../../types/types";
 import type { ReviewFormValues } from "../../../types/admintypes";
 import ReviewFormModal from "../../components/common/ReviewFormModal";
 import DeleteConfirmModal from "../common/DeleteConfirmModal";
+import {
+  createAdminReview,
+  deleteReview,
+  getAdminReviews,
+  updateAdminReview,
+  updateReviewFeatured,
+  updateReviewStatus,
+} from "../../../services/reviews.service";
+import { getProducts } from "../../../services/products.service";
 
-const designOptions = ["THE VORTEX", "NIGHT LOTUS"];
 const ratingFilters = ["ALL", "5", "4", "3", "2", "1"];
 
 type Tab = "pending" | "approved";
 
-const dummyReviews: Review[] = [
-  {
-    id: 1,
-    status: "pending",
-    author: "Marcus Alden",
-    role: "BJJ Blue Belt",
-    design: "THE VORTEX",
-    rating: 5,
-    text: "Rolled in this all weekend at the gym, holds up better than anything else I own.",
-    featured: false,
-    initial: "M",
-  },
-  {
-    id: 2,
-    status: "pending",
-    author: "Priya Nandakumar",
-    role: "BJJ Practitioner",
-    design: "NIGHT LOTUS",
-    rating: 4,
-    text: "Really like the print, fit runs a touch small so size up.",
-    featured: false,
-    initial: "P",
-  },
-  {
-    id: 3,
-    status: "pending",
-    author: "Devon Okafor",
-    role: "No-Gi Competitor",
-    design: "THE VORTEX",
-    rating: 3,
-    text: "Solid rashguard, seams held after a hard training camp.",
-    featured: false,
-    initial: "D",
-  },
-  {
-    id: 4,
-    status: "approved",
-    author: "Coach Ronnie DC",
-    role: "BJJ Purple Belt",
-    design: "THE VORTEX",
-    rating: 5,
-    text: "My whole academy wears these now, quality is unreal for the price.",
-    featured: true,
-    initial: "R",
-  },
-  {
-    id: 5,
-    status: "approved",
-    author: "Ana Lucia Reyes",
-    role: "BJJ Brown Belt",
-    design: "NIGHT LOTUS",
-    rating: 5,
-    text: "The design is stunning and it doesn't fade after washing, highly recommend.",
-    featured: true,
-    initial: "A",
-  },
-  {
-    id: 6,
-    status: "approved",
-    author: "Tyler Voss",
-    role: "MMA Athlete",
-    design: "THE VORTEX",
-    rating: 4,
-    text: "Great compression fit, breathable even during long sparring sessions.",
-    featured: false,
-    initial: "T",
-  },
-  {
-    id: 7,
-    status: "approved",
-    author: "Sofia Marchetti",
-    role: "BJJ White Belt",
-    design: "NIGHT LOTUS",
-    rating: 2,
-    text: "Nice look but the sizing chart was a bit off for me.",
-    featured: false,
-    initial: "S",
-  },
-  {
-    id: 8,
-    status: "approved",
-    author: "Jamal Whitfield",
-    role: "BJJ Black Belt",
-    design: "THE VORTEX",
-    rating: 5,
-    text: "Been competing in these for a year, zero complaints.",
-    featured: false,
-    initial: "J",
-  },
-];
-
 const AdminReviews = () => {
-  const [reviews, setReviews] = useState<Review[]>(dummyReviews);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  const [updatingFeaturedId, setUpdatingFeaturedId] = useState<number | null>(
+    null,
+  );
+
   const [tab, setTab] = useState<Tab>("pending");
 
   const [search, setSearch] = useState("");
@@ -126,13 +55,36 @@ const AdminReviews = () => {
   const approved = reviews.filter((r) => r.status === "approved");
 
   const filteredApproved = approved.filter((r) => {
-    const matchesSearch = r.author
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const matchesSearch = r.author.toLowerCase().includes(search.toLowerCase());
     const matchesRating =
       ratingFilter === "ALL" || r.rating === Number(ratingFilter);
     return matchesSearch && matchesRating;
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+
+        const [reviewsData, productsData] = await Promise.all([
+          getAdminReviews(),
+          getProducts(),
+        ]);
+
+        setReviews(reviewsData);
+        setProducts(productsData);
+      } catch (error) {
+        setError(
+          error instanceof Error ? error.message : "Could not fetch data.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const openAddForm = () => {
     setEditingReview(null);
@@ -149,72 +101,147 @@ const AdminReviews = () => {
     setEditingReview(null);
   };
 
-  const handleFormSubmit = (values: ReviewFormValues) => {
-    if (editingReview) {
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === editingReview.id
-            ? {
-                ...r,
-                author: values.author,
-                role: values.role || "BJJ Practitioner",
-                design: values.design,
-                rating: values.rating,
-                text: values.text,
-                featured: values.featured,
-                initial: values.author.charAt(0).toUpperCase(),
-              }
-            : r
-        )
+  const handleFormSubmit = async (values: ReviewFormValues) => {
+    if (isSaving) return;
+
+    try {
+      setIsSaving(true);
+      setError("");
+
+      if (editingReview) {
+        const updatedReview = await updateAdminReview(editingReview.id, {
+          author: values.author,
+          role: values.role || "BJJ Practitioner",
+          product_id: values.product_id,
+          product_name: values.product_name,
+          rating: values.rating,
+          review_text: values.review_text,
+          featured: values.featured,
+        });
+
+        setReviews((prev) =>
+          prev.map((review) =>
+            review.id === updatedReview.id ? updatedReview : review,
+          ),
+        );
+      } else {
+        const newReview = await createAdminReview({
+          author: values.author,
+          role: values.role || "BJJ Practitioner",
+          product_id: values.product_id,
+          product_name: values.product_name,
+          rating: values.rating,
+          review_text: values.review_text,
+          featured: values.featured,
+        });
+
+        setReviews((prev) => [newReview, ...prev]);
+      }
+
+      closeForm();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not save review.",
       );
-    } else {
-      // Manually added by an admin — published immediately, skips the queue.
-      const newReview: Review = {
-        id: Date.now(),
-        status: "approved",
-        author: values.author,
-        role: values.role || "BJJ Practitioner",
-        design: values.design,
-        rating: values.rating,
-        text: values.text,
-        featured: values.featured,
-        initial: values.author.charAt(0).toUpperCase(),
-      };
-      setReviews((prev) => [newReview, ...prev]);
+    } finally {
+      setIsSaving(false);
     }
-
-    closeForm();
   };
 
-  const approveReview = (review: Review) => {
-    setReviews((prev) =>
-      prev.map((r) => (r.id === review.id ? { ...r, status: "approved" } : r))
-    );
+  const approveReview = async (review: Review) => {
+    try {
+      setError("");
+
+      const updatedReview = await updateReviewStatus(review.id, "approved");
+
+      setReviews((prev) =>
+        prev.map((item) =>
+          item.id === updatedReview.id ? updatedReview : item,
+        ),
+      );
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not approve review.",
+      );
+    }
   };
 
-  const confirmReject = () => {
-    if (!rejectTarget) return;
-    setReviews((prev) => prev.filter((r) => r.id !== rejectTarget.id));
-    setRejectTarget(null);
+  const confirmReject = async () => {
+    if (!rejectTarget || isRejecting) return;
+
+    try {
+      setIsRejecting(true);
+      setError("");
+
+      await deleteReview(rejectTarget.id);
+
+      setReviews((prev) =>
+        prev.filter((review) => review.id !== rejectTarget.id),
+      );
+
+      setRejectTarget(null);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not reject review.",
+      );
+    } finally {
+      setIsRejecting(false);
+    }
   };
 
-  const toggleFeatured = (review: Review) => {
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === review.id ? { ...r, featured: !r.featured } : r
-      )
-    );
+  const toggleFeatured = async (review: Review) => {
+    if (updatingFeaturedId === review.id) return;
+
+    try {
+      setUpdatingFeaturedId(review.id);
+      setError("");
+
+      const updatedReview = await updateReviewFeatured(
+        review.id,
+        !review.featured,
+      );
+
+      setReviews((prev) =>
+        prev.map((item) =>
+          item.id === updatedReview.id ? updatedReview : item,
+        ),
+      );
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Could not update featured status.",
+      );
+    } finally {
+      setUpdatingFeaturedId(null);
+    }
   };
 
-  const confirmDelete = () => {
-    if (!deleteTarget) return;
-    setReviews((prev) => prev.filter((r) => r.id !== deleteTarget.id));
-    setDeleteTarget(null);
+  const confirmDelete = async () => {
+    if (!deleteTarget || isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      setError("");
+
+      await deleteReview(deleteTarget.id);
+
+      setReviews((prev) =>
+        prev.filter((review) => review.id !== deleteTarget.id),
+      );
+
+      setDeleteTarget(null);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Could not delete review.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
     <div className="flex flex-col gap-5">
-      {/* TABS */}
       <div className="flex gap-2">
         <button
           onClick={() => setTab("pending")}
@@ -244,7 +271,17 @@ const AdminReviews = () => {
         </button>
       </div>
 
-      {tab === "pending" ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <p className="font-montserrat text-xs font-bold tracking-widest text-white/30">
+            LOADING REVIEWS...
+          </p>
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-16">
+          <p className="font-montserrat text-xs text-red-400">{error}</p>
+        </div>
+      ) : tab === "pending" ? (
         <div className="border border-borderColor bg-white/2 overflow-hidden">
           {pending.length > 0 ? (
             <div className="flex flex-col divide-y divide-white/5">
@@ -254,7 +291,7 @@ const AdminReviews = () => {
                   className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4"
                 >
                   <div className="w-9 h-9 rounded-full bg-floesky/10 text-floesky font-archivo flex items-center justify-center text-sm shrink-0">
-                    {review.initial}
+                    {review.author.charAt(0).toUpperCase()}
                   </div>
 
                   <div className="min-w-0 flex-1 flex flex-col gap-1">
@@ -266,7 +303,7 @@ const AdminReviews = () => {
                         {review.role}
                       </span>
                       <span className="font-montserrat text-[11px] tracking-wider text-floesky">
-                        {review.design}
+                        {review.product_name}
                       </span>
                       <div className="flex items-center gap-0.5">
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -283,7 +320,7 @@ const AdminReviews = () => {
                       </div>
                     </div>
                     <p className="font-montserrat text-xs text-descText2 leading-relaxed">
-                      "{review.text}"
+                      "{review.review_text}"
                     </p>
                   </div>
 
@@ -319,7 +356,6 @@ const AdminReviews = () => {
         </div>
       ) : (
         <>
-          {/* TOOLBAR */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="relative flex-1 max-w-sm">
               <FaSearch
@@ -355,7 +391,6 @@ const AdminReviews = () => {
             </button>
           </div>
 
-          {/* TABLE */}
           <div className="border border-borderColor bg-white/2 overflow-hidden">
             <div className="hidden sm:grid grid-cols-[48px_1.3fr_1fr_0.8fr_auto_auto] gap-4 px-5 py-3 border-b border-borderColor font-montserrat text-[11px] tracking-[2px] text-descText">
               <span></span>
@@ -374,7 +409,7 @@ const AdminReviews = () => {
                     className="grid grid-cols-[48px_1fr_auto] sm:grid-cols-[48px_1.3fr_1fr_0.8fr_auto_auto] gap-4 px-5 py-3 items-center"
                   >
                     <div className="w-9 h-9 rounded-full bg-floesky/10 text-floesky font-archivo flex items-center justify-center text-sm shrink-0">
-                      {review.initial}
+                      {review.author.charAt(0).toUpperCase()}
                     </div>
 
                     <div className="min-w-0 flex flex-col gap-0.5">
@@ -387,12 +422,12 @@ const AdminReviews = () => {
                         </span>
                       </div>
                       <p className="font-montserrat text-xs text-descText2 truncate max-w-sm">
-                        {review.text}
+                        {review.review_text}
                       </p>
                     </div>
 
                     <span className="hidden sm:inline font-montserrat text-[11px] tracking-wider text-floesky">
-                      {review.design}
+                      {review.product_name}
                     </span>
 
                     <div className="hidden sm:flex items-center gap-0.5">
@@ -411,13 +446,18 @@ const AdminReviews = () => {
 
                     <button
                       onClick={() => toggleFeatured(review)}
-                      className={`hidden sm:inline-flex items-center justify-center w-fit px-2.5 py-1 text-[10px] font-montserrat font-bold tracking-wider border transition ${
+                      disabled={updatingFeaturedId === review.id}
+                      className={`hidden sm:inline-flex items-center justify-center w-fit px-2.5 py-1 text-[10px] font-montserrat font-bold tracking-wider border transition disabled:opacity-40 disabled:cursor-not-allowed ${
                         review.featured
                           ? "border-floesky bg-floesky/10 text-floesky"
                           : "border-borderColor text-descText2 hover:border-floesky hover:text-floesky"
                       }`}
                     >
-                      {review.featured ? "FEATURED" : "REGULAR"}
+                      {updatingFeaturedId === review.id
+                        ? "UPDATING..."
+                        : review.featured
+                          ? "FEATURED"
+                          : "REGULAR"}
                     </button>
 
                     <div className="flex items-center justify-end gap-2">
@@ -456,24 +496,22 @@ const AdminReviews = () => {
       <ReviewFormModal
         isOpen={isFormOpen}
         editingReview={editingReview}
-        designOptions={designOptions}
+        products={products}
+        isSubmitting={isSaving}
+        error={error}
         onClose={closeForm}
         onSubmit={handleFormSubmit}
-      />
-
-      <DeleteConfirmModal
-        isOpen={deleteTarget !== null}
-        title="DELETE REVIEW"
-        itemName={deleteTarget?.author ?? ""}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={confirmDelete}
       />
 
       <DeleteConfirmModal
         isOpen={rejectTarget !== null}
         title="REJECT REVIEW"
         itemName={rejectTarget?.author ?? ""}
-        onClose={() => setRejectTarget(null)}
+        isDeleting={isRejecting}
+        onClose={() => {
+          if (isRejecting) return;
+          setRejectTarget(null);
+        }}
         onConfirm={confirmReject}
       />
     </div>

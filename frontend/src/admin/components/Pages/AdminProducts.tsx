@@ -302,6 +302,7 @@ const AdminProducts = () => {
         isSubmitting={isSaving}
         onClose={closeForm}
         onSubmit={handleFormSubmit}
+        error={error}
       />
 
       <DeleteConfirmModal
@@ -310,6 +311,7 @@ const AdminProducts = () => {
         itemName={deleteTarget?.title ?? ""}
         onClose={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
+        isDeleting={isSaving}
       />
 
       <ImagePreviewModal

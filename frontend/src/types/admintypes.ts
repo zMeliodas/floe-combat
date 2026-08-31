@@ -1,3 +1,5 @@
+import type { ReviewStatus } from "./types";
+
 export type ProductFormValues = {
   title: string;
   category: string;
@@ -18,9 +20,10 @@ export type HighlightFormValues = {
 export type ReviewFormValues = {
   author: string;
   role: string;
-  design: string;
+  product_id: number | null;
+  product_name: string;
   rating: number;
-  text: string;
+  review_text: string;
   featured: boolean;
 };
 

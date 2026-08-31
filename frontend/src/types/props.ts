@@ -42,3 +42,26 @@ export type HighlightFormModalProps = {
   onClose: () => void;
   onSubmit: (values: HighlightFormValues) => void;
 };
+
+export type SubmitReviewFormValues = {
+  author: string;
+  role: string;
+  product_id: number | null;
+  product_name: string;
+  rating: number;
+  review_text: string;
+};
+
+export type ProductOption = {
+  id: number;
+  title: string;
+};
+
+export type SubmitReviewModalProps = {
+  isOpen: boolean;
+  products: Product[];
+  isSubmitting: boolean;
+  error?: string;
+  onClose: () => void;
+  onSubmit: (values: SubmitReviewFormValues) => void;
+};

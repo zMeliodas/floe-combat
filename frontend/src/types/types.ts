@@ -1,15 +1,3 @@
-export interface Review {
-  id: number;
-  featured?: boolean;
-  status: "pending" | "approved";
-  rating: number;
-  text: string;
-  design: string;
-  author: string;
-  role: string;
-  initial: string;
-}
-
 export type Theme = "light" | "dark";
 
 export type Product = {
@@ -91,4 +79,61 @@ export type UpdateHighlightInput = {
   athlete: string;
   media?: File;
   thumbnail?: File;
+};
+
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
+export type Review = {
+  id: number;
+  author: string;
+  role: string;
+  product_id: number | null;
+  product_name: string;
+  rating: number;
+  review_text: string;
+  status: ReviewStatus;
+  featured: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ReviewsResponse = {
+  success: boolean;
+  message: string;
+  result: Review[];
+};
+
+export type ReviewResponse = {
+  success: boolean;
+  message: string;
+  result: Review;
+};
+
+export type CreateReviewInput = {
+  author: string;
+  role: string;
+  product_id: number | null;
+  product_name: string;
+  rating: number;
+  review_text: string;
+  featured: boolean;
+};
+
+export type UpdateReviewInput = {
+  author: string;
+  role: string;
+  product_id: number | null;
+  product_name: string;
+  rating: number;
+  review_text: string;
+  featured: boolean;
+};
+
+export type CreateCustomerReviewInput = {
+  author: string;
+  role: string;
+  product_id: number | null;
+  product_name: string;
+  rating: number;
+  review_text: string;
 };
