@@ -1,5 +1,3 @@
-import type { ReviewStatus } from "./types";
-
 export type ProductFormValues = {
   title: string;
   category: string;

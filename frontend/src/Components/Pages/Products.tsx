@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { FaTimes } from "react-icons/fa";
 import FilterButton from "../common/FilterButton";
 import type { Product } from "../../types/types";
 import { getProducts } from "../../services/products.service";
@@ -91,7 +90,17 @@ const Products = () => {
           ))}
         </div>
 
-        {filtered.length > 0 ? (
+        {isLoading ? (
+          <div className="flex min-h-60 items-center justify-center w-full max-w-7xl">
+            <p className="font-montserrat text-xs font-bold tracking-widest text-white/30">
+              LOADING PRODUCTS...
+            </p>
+          </div>
+        ) : fetchError ? (
+          <div className="flex min-h-60 items-center justify-center w-full max-w-7xl">
+            <p className="font-montserrat text-xs text-red-400">{fetchError}</p>
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 max-w-7xl w-full pb-16 sm:pb-20">
             {filtered.map((project, i) => (
               <motion.div
@@ -142,6 +151,7 @@ const Products = () => {
             <span className="text-semitrans font-archivo text-5xl sm:text-7xl font-bold">
               0
             </span>
+
             <p className="text-descText2 font-montserrat text-sm font-bold tracking-widest">
               NO PRODUCTS YET
             </p>
