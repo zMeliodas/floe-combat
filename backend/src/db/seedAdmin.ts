@@ -1,8 +1,8 @@
 import { hash } from "@node-rs/argon2";
 import pool from "./pool.js";
 
-const email = process.argv[2];
-const password = process.argv[3];
+const email = process.env.SEED_ADMIN_EMAIL;
+const password = process.env.SEED_ADMIN_PASSWORD;
 
 const main = async () => {
   try {
