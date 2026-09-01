@@ -63,7 +63,7 @@ const Login = () => {
     <div className="min-h-screen bg-black flex items-center justify-center p-6">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm border border-white/10 bg-white/[0.02] p-8 flex flex-col gap-6"
+        className="w-full max-w-sm border border-white/10 bg-white/2 p-8 flex flex-col gap-6"
       >
         <div className="flex flex-col gap-1">
           <span className="font-archivo text-lg tracking-[3px] text-white">
